@@ -337,7 +337,7 @@ export default function Supplier() {
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal focus:border-transparent"
                   >
                     <option value="">Select Volume Range</option>
-                    <option value="Small">Small Scale (< 50 tons/year)</option>
+                    <option value="Small">Small Scale (&lt; 50 tons/year)</option>
                     <option value="Medium">Medium Scale (50-500 tons/year)</option>
                     <option value="Large">Large Scale (500+ tons/year)</option>
                   </select>
