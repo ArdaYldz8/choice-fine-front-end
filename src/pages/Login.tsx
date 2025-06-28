@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User, AlertCircle } from "lucide-react";
-import { supabase, getCurrentUserProfile } from "../lib/supabase";
+import { supabase, getCurrentUserProfile, clearAuthCache } from "../lib/supabase";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -14,7 +14,7 @@ export default function Login() {
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
@@ -22,6 +22,9 @@ export default function Login() {
     
     try {
       console.log('Attempting login with:', email);
+      
+      // Clear any existing cache before login
+      clearAuthCache();
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
@@ -40,30 +43,43 @@ export default function Login() {
         setSuccess('Giriş başarılı! Yönlendiriliyorsunuz...');
         
         // Check if user is admin and redirect accordingly
-        if (data.user.app_metadata?.role === 'admin' || data.user.email?.endsWith('@admin.com')) {
+        const isAdmin = data.user.app_metadata?.role === 'admin' || data.user.email?.endsWith('@admin.com');
+        
+        if (isAdmin) {
+          console.log('Admin user detected, redirecting to admin panel');
           setTimeout(() => navigate('/admin'), 1000);
         } else {
-          // For regular users, check if profile is approved
+          // For regular users, check if profile is approved with force refresh
           try {
-            const profile = await getCurrentUserProfile();
+            console.log('Regular user, checking profile approval...');
+            const profile = await getCurrentUserProfile(true); // Force refresh
+            console.log('Profile check result:', profile);
+            
             if (!profile || !profile.approved) {
               await supabase.auth.signOut();
+              clearAuthCache();
               setError('Hesabınız henüz onaylanmamış. Lütfen yönetici onayını bekleyin.');
               return;
             }
+            console.log('User approved, redirecting to home');
           } catch (err) {
             console.error('Profile check error:', err);
+            await supabase.auth.signOut();
+            clearAuthCache();
+            setError('Profil kontrol edilirken hata oluştu. Lütfen tekrar deneyin.');
+            return;
           }
           setTimeout(() => navigate('/'), 1000);
         }
       }
     } catch (err) {
       console.error('Catch block error:', err);
+      clearAuthCache();
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [email, password, navigate]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();

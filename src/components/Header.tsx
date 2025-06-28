@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, Phone, Mail, User, LogOut, Settings, ShieldCheck, ChevronDown, ShoppingCart } from "lucide-react";
 import { cn } from "../lib/utils";
-import { supabase, checkAdminRole, getCurrentUserProfile } from "../lib/supabase";
+import { supabase, checkAdminRole, getCurrentUserProfile, clearAuthCache } from "../lib/supabase";
 import { useCart } from "../contexts/CartContext";
+import { clearAllCaches } from "../lib/cache-utils";
 
 const navigation = [
   {
@@ -22,31 +23,67 @@ export function Header() {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [profile, setProfile] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [lastProfileCheck, setLastProfileCheck] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { state: cartState, toggleCart } = useCart();
 
-  const isActive = (href: string) => {
+  // Memoized isActive function for better performance
+  const isActive = useCallback((href: string) => {
     if (href === "/") return location.pathname === "/";
     return location.pathname.startsWith(href);
-  };
+  }, [location.pathname]);
 
-  // Check auth status
+  // Force refresh profile data every 30 seconds
+  const forceRefreshProfile = useCallback(async () => {
+    const now = Date.now();
+    if (now - lastProfileCheck > 30000) { // 30 seconds cache
+      try {
+        if (user) {
+          const [adminStatus, userProfile] = await Promise.all([
+            checkAdminRole(),
+            getCurrentUserProfile()
+          ]);
+          setIsAdmin(adminStatus);
+          setProfile(userProfile);
+          setLastProfileCheck(now);
+          console.log('Profile refreshed:', { adminStatus, approved: userProfile?.approved });
+        }
+      } catch (error) {
+        console.error('Profile refresh error:', error);
+      }
+    }
+  }, [user, lastProfileCheck]);
+
+  // Check auth status with improved caching and error handling
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        setIsLoading(true);
         const { data: { session } } = await supabase.auth.getSession();
+        
         if (session?.user) {
           setUser(session.user);
           
-          // Check admin role
-          const adminStatus = await checkAdminRole();
-          setIsAdmin(adminStatus);
+          // Parallel execution for better performance
+          const [adminStatus, userProfile] = await Promise.all([
+            checkAdminRole(),
+            getCurrentUserProfile()
+          ]);
           
-          // Get profile
-          const userProfile = await getCurrentUserProfile();
+          setIsAdmin(adminStatus);
           setProfile(userProfile);
+          setLastProfileCheck(Date.now());
+          
+          console.log('Auth check completed:', { 
+            email: session.user.email, 
+            isAdmin: adminStatus, 
+            approved: userProfile?.approved,
+            metadata: session.user.app_metadata,
+            profileData: userProfile
+          });
         } else {
           setUser(null);
           setIsAdmin(false);
@@ -54,28 +91,71 @@ export function Header() {
         }
       } catch (error) {
         console.error('Auth check error:', error);
+        // Clear state on error
+        setUser(null);
+        setIsAdmin(false);
+        setProfile(null);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     checkAuth();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    // Listen for auth changes - FIXED: Avoid deadlock by using setTimeout
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', event, session?.user?.email);
+      
       if (event === 'SIGNED_IN' && session?.user) {
         setUser(session.user);
-        const adminStatus = await checkAdminRole();
-        setIsAdmin(adminStatus);
-        const userProfile = await getCurrentUserProfile();
-        setProfile(userProfile);
+        setIsLoading(true);
+        
+        // CRITICAL FIX: Use setTimeout to avoid Supabase deadlock
+        setTimeout(async () => {
+          try {
+            const [adminStatus, userProfile] = await Promise.all([
+              checkAdminRole(),
+              getCurrentUserProfile()
+            ]);
+            
+            setIsAdmin(adminStatus);
+            setProfile(userProfile);
+            setLastProfileCheck(Date.now());
+            
+            console.log('Profile loaded after auth change:', {
+              isAdmin: adminStatus,
+              approved: userProfile?.approved,
+              email: session.user.email
+            });
+          } catch (error) {
+            console.error('Sign in profile fetch error:', error);
+          } finally {
+            setIsLoading(false);
+          }
+        }, 0);
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setIsAdmin(false);
         setProfile(null);
+        setLastProfileCheck(0);
+        setIsLoading(false);
+        
+        // Clear any cached data
+        localStorage.removeItem('supabase.auth.token');
+        sessionStorage.clear();
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Auto-refresh profile data periodically
+  useEffect(() => {
+    if (user && !isLoading) {
+      const interval = setInterval(forceRefreshProfile, 30000); // Every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [user, isLoading, forceRefreshProfile]);
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -89,18 +169,41 @@ export function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSignOut = async () => {
+  const handleSignOut = useCallback(async () => {
     try {
-      console.log('Header: Starting sign out...');
-      await supabase.auth.signOut();
-      console.log('Header: Sign out successful, navigating to home...');
-      navigate('/');
+      console.log('Header: Starting optimized sign out...');
+      
+      // Clear local state immediately
+      setUser(null);
+      setIsAdmin(false);
+      setProfile(null);
+      setLastProfileCheck(0);
       setIsMobileMenuOpen(false);
       setIsUserMenuOpen(false);
+      
+      // Clear auth cache
+      clearAuthCache();
+      
+      // Clear all browser caches
+      await clearAllCaches();
+      
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      if (error) {
+        console.error('Supabase sign out error:', error);
+      }
+      
+      console.log('Header: Sign out successful, redirecting...');
+      
+      // Force complete page reload to clear all state
+      window.location.replace('/');
+      
     } catch (error) {
       console.error('Header: Sign out error:', error);
+      // Force navigation even on error
+      window.location.replace('/');
     }
-  };
+  }, []);
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">

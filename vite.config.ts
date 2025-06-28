@@ -8,6 +8,9 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    hmr: {
+      overlay: false, // Disable error overlay for better UX
+    },
   },
   plugins: [
     react(),
@@ -18,5 +21,24 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          supabase: ['@supabase/supabase-js'],
+          ui: ['lucide-react'],
+        },
+      },
+    },
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', '@supabase/supabase-js'],
+    force: mode === 'development', // Force re-optimize in dev
+  },
+  esbuild: {
+    // Remove console logs in production
+    drop: mode === 'production' ? ['console', 'debugger'] : [],
   },
 }));

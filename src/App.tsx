@@ -15,6 +15,7 @@ import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import TestSupabase from "./pages/TestSupabase";
+import { DeadlockDebugger } from "@/components/DeadlockDebugger";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
             </main>
             <Footer />
             <ShoppingCart />
+            <DeadlockDebugger />
           </div>
         </BrowserRouter>
       </CartProvider>
