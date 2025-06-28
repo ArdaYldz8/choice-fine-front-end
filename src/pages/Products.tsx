@@ -1,130 +1,96 @@
 import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { Search, Filter, Grid, List, Lock, ShoppingCart, Plus } from "lucide-react";
-import { supabase, getCurrentUserProfile } from "../lib/supabase";
+import { supabase, getCurrentUserProfile, type Product } from "../lib/supabase";
 import { useCart } from "../contexts/CartContext";
+import { useProducts } from "../hooks/useProducts";
 
+// Real categories from our product data
 const categories = [
   "All Categories",
-  "Premium Grains", 
-  "Frozen Vegetables",
-  "Imported Beverages",
-  "European Wafers & Cakes",
-  "Dairy Products"
+  "BAKERY", 
+  "CANDY",
+  "CHEESES",
+  "COOKIES",
+  "DATES",
+  "DESSERT MIX",
+  "DRINKS",
+  "FETA",
+  "FILLO",
+  "FOODSERVICE",
+  "FROZEN",
+  "GRAINS",
+  "GROCERY",
+  "HALAL CANDY",
+  "ICE CREAM",
+  "JAMS & HONEY",
+  "KITCHEN",
+  "MEAT",
+  "MISC",
+  "NUTS",
+  "OLIVES",
+  "PASTA",
+  "PICKLES",
+  "READY TO EAT",
+  "SADAF",
+  "SAUCES",
+  "SNACKS",
+  "SPICES",
+  "SWEETS",
+  "TEA",
+  "COFFEE",
+  "YOGURT",
+  "ZIYAD"
 ];
 
-const countries = [
-  "All Countries",
-  "Italy", 
-  "Spain",
-  "Greece", 
-  "France",
-  "Germany",
-  "Netherlands",
-  "Turkey"
-];
-
-const products = [
-  {
-    id: 1,
-    name: "Premium Whole Wheat Flour",
-    description: "High-quality whole wheat flour sourced from the finest grains around the world.",
-    category: "Premium Grains",
-    country: "Italy",
-    packSize: "2kg Bag",
-    image: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    tags: ["Organic", "Whole Grain", "Premium"],
-    featured: true
-  },
-  {
-    id: 2,
-    name: "Organic Quinoa",
-    description: "Premium quinoa grains, perfect for healthy and nutritious meals.",
-    category: "Premium Grains",
-    country: "Italy", 
-    packSize: "1kg Package",
-    image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    tags: ["Organic", "Gluten-Free", "Superfood"],
-    featured: true
-  },
-  {
-    id: 3,
-    name: "Frozen Mediterranean Vegetables",
-    description: "Premium frozen vegetable mix including exotic and common varieties.",
-    category: "Frozen Vegetables",
-    country: "Spain",
-    packSize: "1kg Frozen Pack", 
-    image: "https://images.unsplash.com/photo-1506976785307-8732e854ad03?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    tags: ["Frozen", "Mediterranean", "Popular Brand"],
-    featured: false
-  },
-  {
-    id: 4,
-    name: "Organic Frozen Spinach",
-    description: "Premium frozen spinach from the most popular brands in the market.",
-    category: "Frozen Vegetables",
-    country: "Netherlands",
-    packSize: "500g Frozen Pack",
-    image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    tags: ["Organic", "Frozen", "Healthy"],
-    featured: false
-  },
-  {
-    id: 5,
-    name: "Premium Italian Mineral Water",
-    description: "Imported Italian mineral water supporting a healthy and balanced lifestyle.",
-    category: "Imported Beverages", 
-    country: "Italy",
-    packSize: "1L Glass Bottle",
-    image: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    tags: ["Imported", "Mineral", "Premium"],
-    featured: false
-  },
-  {
-    id: 6,
-    name: "Italian Wafers Assortment",
-    description: "The best Italian wafers available in the US from premium European brands.",
-    category: "European Wafers & Cakes",
-    country: "Italy",
-    packSize: "200g Package",
-    image: "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    tags: ["Italian", "European", "Premium"],
-    featured: false
-  },
-  {
-    id: 7,
-    name: "Premium European Cheese Selection",
-    description: "Extensive selection of high-quality cheeses from the best European producers.",
-    category: "Dairy Products",
-    country: "France",
-    packSize: "250g Package",
-    image: "https://images.unsplash.com/photo-1452195100486-9cc805987862?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    tags: ["European", "Premium", "Cheese"],
-    featured: true
-  },
-  {
-    id: 8,
-    name: "Organic Greek Yogurt",
-    description: "Premium quality Greek yogurt and other dairy products.",
-    category: "Dairy Products",
-    country: "Greece",
-    packSize: "500g Container",
-    image: "https://images.unsplash.com/photo-1571212515416-8b71b4752fdc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    tags: ["Organic", "Greek", "Healthy"],
-    featured: false
-  }
-];
+// Function to get a placeholder image based on category
+const getCategoryImage = (category: string) => {
+  const imageMap: { [key: string]: string } = {
+    'BAKERY': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'CANDY': 'https://images.unsplash.com/photo-1514849302-984523450cf4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'CHEESES': 'https://images.unsplash.com/photo-1452195100486-9cc805987862?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'COOKIES': 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'DATES': 'https://images.unsplash.com/photo-1577069861033-55d04cec4ef5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'DRINKS': 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'FROZEN': 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'GRAINS': 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'NUTS': 'https://images.unsplash.com/photo-1508747792480-cca4d777b15b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'PASTA': 'https://images.unsplash.com/photo-1551892589-865f69869476?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'SPICES': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'TEA': 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'COFFEE': 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'YOGURT': 'https://images.unsplash.com/photo-1571212515416-8b71b4752fdc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+  };
+  
+  return imageMap[category] || 'https://images.unsplash.com/photo-1556909114-4f0f33e6a3c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+};
 
 export default function Products() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
-  const [selectedCountry, setSelectedCountry] = useState("All Countries");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
   const { addItem, openCart } = useCart();
+  
+  // Use the real products hook
+  const { products, loading: productsLoading, error: productsError } = useProducts();
+
+  // Add timeout for products loading
+  useEffect(() => {
+    if (productsLoading) {
+      const timer = setTimeout(() => {
+        setLoadingTimeout(true);
+      }, 10000); // 10 second timeout
+
+      return () => clearTimeout(timer);
+    } else {
+      setLoadingTimeout(false);
+    }
+  }, [productsLoading]);
 
   // Check auth status
   useEffect(() => {
@@ -161,13 +127,76 @@ export default function Products() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Show loading while checking auth
-  if (isLoading) {
+  // Show loading timeout message
+  if (loadingTimeout && productsLoading) {
+    return (
+      <div className="min-h-screen bg-lightGrey flex items-center justify-center">
+        <div className="text-center max-w-lg mx-auto p-8">
+          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Search className="h-8 w-8 text-yellow-600" />
+          </div>
+          <h1 className="text-2xl font-serif font-bold text-neutralBlack mb-4">
+            Loading Taking Too Long
+          </h1>
+          <p className="text-gray-600 mb-6">
+            Products are taking longer than expected to load. This might be because:
+          </p>
+          <ul className="text-left text-gray-600 mb-6 space-y-2">
+            <li>• Products table doesn't exist yet</li>
+            <li>• Migration needs to be run</li>
+            <li>• Supabase connection issue</li>
+          </ul>
+          <div className="space-y-3">
+            <button 
+              onClick={() => window.location.reload()}
+              className="btn-primary w-full"
+            >
+              Try Again
+            </button>
+            <p className="text-sm text-gray-500">
+              Check browser console for error details
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading while checking auth or loading products
+  if (isLoading || productsLoading) {
     return (
       <div className="min-h-screen bg-lightGrey flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primaryBlue mx-auto mb-4"></div>
-          <p>Loading...</p>
+          <p>Loading products...</p>
+          <p className="text-sm text-gray-500 mt-2">
+            {productsLoading ? 'Fetching product data...' : 'Checking authentication...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if products failed to load
+  if (productsError) {
+    return (
+      <div className="min-h-screen bg-lightGrey flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Search className="h-8 w-8 text-red-600" />
+          </div>
+          <h1 className="text-2xl font-serif font-bold text-neutralBlack mb-4">
+            Error Loading Products
+          </h1>
+          <p className="text-gray-600 mb-6">
+            {productsError}
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="btn-primary"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
@@ -200,25 +229,23 @@ export default function Products() {
     );
   }
 
+  // Filter products based on search and category
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
+                         (product.description?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "All Categories" || product.category === selectedCategory;
-    const matchesCountry = selectedCountry === "All Countries" || product.country === selectedCountry;
     
-    return matchesSearch && matchesCategory && matchesCountry;
+    return matchesSearch && matchesCategory;
   });
 
-  const handleAddToCart = (product: any) => {
+  const handleAddToCart = (product: Product) => {
     addItem({
       id: product.id,
       name: product.name,
-      description: product.description,
-      category: product.category,
-      country: product.country,
-      packSize: product.packSize,
-      image: product.image,
-      tags: product.tags,
+      description: product.description || '',
+      category: product.category || '',
+      price: product.price,
+      sku: product.sku,
       quickbooks_id: product.quickbooks_id
     });
     openCart();
@@ -275,25 +302,10 @@ export default function Products() {
                 </select>
               </div>
 
-              {/* Country Filter */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-neutralBlack mb-2">Country of Origin</label>
-                <select
-                  value={selectedCountry}
-                  onChange={(e) => setSelectedCountry(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
-                >
-                  {countries.map((country) => (
-                    <option key={country} value={country}>{country}</option>
-                  ))}
-                </select>
-              </div>
-
               <button
                 onClick={() => {
                   setSearchTerm("");
                   setSelectedCategory("All Categories");
-                  setSelectedCountry("All Countries");
                 }}
                 className="w-full btn-outline"
               >
@@ -346,31 +358,26 @@ export default function Products() {
                   <div key={product.id} className="card-elevation overflow-hidden">
                     <div className="aspect-square relative">
                       <img
-                        src={product.image}
+                        src={getCategoryImage(product.category || '')}
                         alt={product.name}
                         className="w-full h-full object-cover"
                       />
-                      {product.featured && (
-                        <div className="absolute top-4 left-4 bg-accentRed text-white px-3 py-1 rounded-full text-sm font-medium">
-                          Featured
-                        </div>
-                      )}
                       <div className="absolute top-4 right-4 bg-white/90 px-2 py-1 rounded text-xs font-medium text-neutralBlack">
-                        {product.country}
+                        {product.category}
                       </div>
                     </div>
                     <div className="p-6">
                       <h3 className="font-serif font-bold text-lg text-neutralBlack mb-2">{product.name}</h3>
                       <p className="text-gray-600 mb-3 text-sm">{product.description}</p>
-                      <div className="flex flex-wrap gap-1 mb-4">
-                        {product.tags.map((tag) => (
-                          <span key={tag} className="bg-lightGrey text-primaryBlue px-2 py-1 rounded-full text-xs font-medium">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-500">{product.packSize}</span>
+                        <div className="text-sm text-gray-500">
+                          {product.sku && <span>SKU: {product.sku}</span>}
+                          {product.price && (
+                            <div className="font-medium text-primaryBlue">
+                              ${product.price.toFixed(2)}
+                            </div>
+                          )}
+                        </div>
                         <button 
                           onClick={() => handleAddToCart(product)}
                           className="btn-primary text-sm px-4 py-2 flex items-center space-x-2"
@@ -390,7 +397,7 @@ export default function Products() {
                     <div className="flex flex-col md:flex-row gap-6">
                       <div className="w-full md:w-48 aspect-square md:aspect-auto">
                         <img
-                          src={product.image}
+                          src={getCategoryImage(product.category || '')}
                           alt={product.name}
                           className="w-full h-full object-cover rounded-lg"
                         />
@@ -398,23 +405,17 @@ export default function Products() {
                       <div className="flex-1 space-y-3">
                         <div className="flex items-start justify-between">
                           <h3 className="font-serif font-bold text-xl text-neutralBlack">{product.name}</h3>
-                          {product.featured && (
-                            <span className="bg-accentRed text-white px-3 py-1 rounded-full text-sm font-medium">
-                              Featured
-                            </span>
-                          )}
                         </div>
                         <p className="text-gray-600">{product.description}</p>
-                        <div className="flex flex-wrap gap-2">
-                          {product.tags.map((tag) => (
-                            <span key={tag} className="bg-lightGrey text-primaryBlue px-3 py-1 rounded-full text-sm font-medium">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
                         <div className="flex items-center justify-between pt-2">
                           <div className="text-sm text-gray-500">
-                            <span className="font-medium">{product.packSize}</span> • {product.country}
+                            <span className="font-medium">{product.category}</span>
+                            {product.sku && <span> • SKU: {product.sku}</span>}
+                            {product.price && (
+                              <div className="font-medium text-primaryBlue text-lg mt-1">
+                                ${product.price.toFixed(2)}
+                              </div>
+                            )}
                           </div>
                           <button 
                             onClick={() => handleAddToCart(product)}
@@ -442,7 +443,6 @@ export default function Products() {
                   onClick={() => {
                     setSearchTerm("");
                     setSelectedCategory("All Categories");
-                    setSelectedCountry("All Countries");
                   }}
                   className="btn-primary"
                 >
