@@ -1,22 +1,123 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, User, AlertCircle } from "lucide-react";
+import { supabase, getCurrentUserProfile } from "../lib/supabase";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
+    setSuccess(null);
     
-    // Simulate login process
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      console.log('Attempting login with:', email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password,
+      });
+
+      console.log('Login response:', { data, error });
+
+      if (error) {
+        console.error('Login error:', error);
+        throw error;
+      }
+
+      if (data.user) {
+        console.log('Login successful, user:', data.user);
+        setSuccess('Giriş başarılı! Yönlendiriliyorsunuz...');
+        
+        // Check if user is admin and redirect accordingly
+        if (data.user.app_metadata?.role === 'admin' || data.user.email?.endsWith('@admin.com')) {
+          setTimeout(() => navigate('/admin'), 1000);
+        } else {
+          // For regular users, check if profile is approved
+          try {
+            const profile = await getCurrentUserProfile();
+            if (!profile || !profile.approved) {
+              await supabase.auth.signOut();
+              setError('Hesabınız henüz onaylanmamış. Lütfen yönetici onayını bekleyin.');
+              return;
+            }
+          } catch (err) {
+            console.error('Profile check error:', err);
+          }
+          setTimeout(() => navigate('/'), 1000);
+        }
+      }
+    } catch (err) {
+      console.error('Catch block error:', err);
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
     
-    console.log("Login attempt:", { email, password });
-    setIsLoading(false);
+    try {
+      console.log('Attempting signup with:', email, fullName);
+      
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password: password,
+        options: {
+          data: {
+            full_name: fullName.trim(),
+          }
+        }
+      });
+
+      console.log('Signup response:', { data, error });
+
+      if (error) {
+        console.error('Signup error:', error);
+        throw error;
+      }
+
+      if (data.user) {
+        setSuccess(
+          'Kayıt başarılı! Hesabınız oluşturuldu ve yönetici onayı için gönderildi. ' +
+          'Onay aldıktan sonra giriş yapabileceksiniz.'
+        );
+        
+        // Reset form
+        setEmail('');
+        setPassword('');
+        setFullName('');
+        setIsSignUp(false);
+      }
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError(err instanceof Error ? err.message : 'Kayıt başarısız');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleMode = () => {
+    setIsSignUp(!isSignUp);
+    setError(null);
+    setSuccess(null);
+    setEmail('');
+    setPassword('');
+    setFullName('');
   };
 
   return (
@@ -35,17 +136,37 @@ export default function Login() {
             </Link>
             
             <h1 className="text-3xl font-serif font-bold text-neutralBlack mb-4">
-              Member Login
+              {isSignUp ? 'Üye Olmak İçin Başvur' : 'Üye Girişi'}
             </h1>
             <p className="text-gray-600">
-              Sign in to access your wholesale account and manage your orders.
+              {isSignUp 
+                ? 'Wholesale hesabınız için başvuru yapın. Onay sürecinden sonra giriş yapabileceksiniz.'
+                : 'Wholesale hesabınıza giriş yapın ve siparişlerinizi yönetin.'
+              }
             </p>
           </div>
 
           <div className="bg-white rounded-xl p-8 shadow-elevation">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={isSignUp ? handleSignUp : handleLogin} className="space-y-6">
+              {isSignUp && (
+                <div>
+                  <label className="block text-sm font-medium text-neutralBlack mb-2">Ad Soyad</label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
+                      placeholder="Adınız ve Soyadınız"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+
               <div>
-                <label className="block text-sm font-medium text-neutralBlack mb-2">Email Address</label>
+                <label className="block text-sm font-medium text-neutralBlack mb-2">Email Adresi</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
@@ -60,7 +181,7 @@ export default function Login() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-neutralBlack mb-2">Password</label>
+                <label className="block text-sm font-medium text-neutralBlack mb-2">Şifre</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
@@ -68,8 +189,9 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
-                    placeholder="Enter your password"
+                    placeholder={isSignUp ? "Güçlü bir şifre seçin" : "Şifrenizi girin"}
                     required
+                    minLength={6}
                   />
                   <button
                     type="button"
@@ -81,18 +203,33 @@ export default function Login() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    className="rounded border-gray-300 text-primaryBlue focus:ring-primaryBlue"
-                  />
-                  <span className="ml-2 text-sm text-gray-600">Remember me</span>
-                </label>
-                <a href="#" className="text-sm text-primaryBlue hover:text-neutralBlack transition-colors">
-                  Forgot your password?
-                </a>
-              </div>
+              {!isSignUp && (
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      className="rounded border-gray-300 text-primaryBlue focus:ring-primaryBlue"
+                    />
+                    <span className="ml-2 text-sm text-gray-600">Beni hatırla</span>
+                  </label>
+                  <a href="#" className="text-sm text-primaryBlue hover:text-neutralBlack transition-colors">
+                    Şifrenizi mi unuttunuz?
+                  </a>
+                </div>
+              )}
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start">
+                  <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-2 flex-shrink-0" />
+                  <p className="text-red-600 text-sm">{error}</p>
+                </div>
+              )}
+
+              {success && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <p className="text-green-600 text-sm">{success}</p>
+                </div>
+              )}
 
               <button
                 type="submit"
@@ -102,11 +239,11 @@ export default function Login() {
                 {isLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Signing in...
+                    {isSignUp ? 'Başvuru gönderiliyor...' : 'Giriş yapılıyor...'}
                   </>
                 ) : (
                   <>
-                    Sign In
+                    {isSignUp ? 'Başvuru Gönder' : 'Giriş Yap'}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </>
                 )}
@@ -115,33 +252,41 @@ export default function Login() {
 
             <div className="mt-8 pt-6 border-t border-gray-200">
               <div className="text-center">
-                <p className="text-gray-600 mb-4">Don't have a member account?</p>
-                <Link to="/contact" className="btn-outline w-full">
-                  Request Membership
-                </Link>
+                <p className="text-gray-600 mb-4">
+                  {isSignUp ? 'Zaten hesabınız var mı?' : 'Hesabınız yok mu?'}
+                </p>
+                <button 
+                  onClick={toggleMode}
+                  className="btn-outline w-full"
+                >
+                  {isSignUp ? 'Giriş Yapmak için Tıklayın' : 'Üye Olmak İçin Başvurun'}
+                </button>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 text-center">
-            <div className="bg-primaryBlue/10 border border-primaryBlue/20 rounded-lg p-4">
-              <h3 className="font-semibold text-neutralBlack mb-2">New to Choice Foods?</h3>
-              <p className="text-sm text-gray-600 mb-3">
-                This member portal is for existing wholesale customers. To become a customer and access our premium Mediterranean products, 
-                please contact our team.
-              </p>
-              <Link to="/contact" className="text-primaryBlue font-medium hover:text-neutralBlack transition-colors">
-                Contact us today
-              </Link>
+          {isSignUp && (
+            <div className="mt-8 text-center">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 className="font-semibold text-neutralBlack mb-2">Onay Süreci Hakkında</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Başvurunuz incelendikten sonra, hesabınız aktif hale getirilecektir. 
+                  Bu süreç genellikle 1-2 iş günü sürmektedir.
+                </p>
+                <p className="text-xs text-gray-500">
+                  Acil durumlar için: <Link to="/contact" className="text-primaryBlue hover:text-neutralBlack transition-colors">iletişim sayfamızı</Link> ziyaret edin.
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="mt-8 text-center text-sm text-gray-500">
             <p>
-              By signing in, you agree to our{" "}
-              <a href="#" className="text-primaryBlue hover:text-neutralBlack transition-colors">Terms of Service</a>
-              {" "}and{" "}
-              <a href="#" className="text-primaryBlue hover:text-neutralBlack transition-colors">Privacy Policy</a>
+              {isSignUp ? 'Başvuru yaparak' : 'Giriş yaparak'}{" "}
+              <a href="#" className="text-primaryBlue hover:text-neutralBlack transition-colors">Hizmet Şartlarımızı</a>
+              {" "}ve{" "}
+              <a href="#" className="text-primaryBlue hover:text-neutralBlack transition-colors">Gizlilik Politikamızı</a>
+              {" "}kabul etmiş olursunuz.
             </p>
           </div>
         </div>

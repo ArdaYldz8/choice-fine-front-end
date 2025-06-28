@@ -1,73 +1,262 @@
-# Welcome to your Lovable project
+# Choice Foods - Admin Approval System
 
-## Project info
+A modern React + TypeScript web application with Supabase backend featuring a complete admin-approval signup flow (yönetici onaylı kayıt akışı) for wholesale customers.
 
-**URL**: https://lovable.dev/projects/6e472d6b-a8ba-42e4-a403-69aa783baa5c
+## Features
 
-## How can I edit this code?
+- **Admin Approval Workflow** (Yönetici Onay İş Akışı)
+  - User registration with pending approval status
+  - Admin panel for reviewing and approving users
+  - Role-based access control (RBAC)
+  - Real-time updates with Supabase subscriptions
 
-There are several ways of editing your application.
+- **Authentication & Authorization** (Kimlik Doğrulama ve Yetkilendirme)
+  - Supabase Auth integration
+  - Row Level Security (RLS) policies
+  - JWT token-based authentication
+  - Admin role management
 
-**Use Lovable**
+- **Modern UI/UX** (Modern Kullanıcı Arayüzü)
+  - Responsive design with Tailwind CSS
+  - shadcn/ui component library
+  - Toast notifications
+  - Loading states and error handling
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/6e472d6b-a8ba-42e4-a403-69aa783baa5c) and start prompting.
+## Tech Stack
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Frontend**: React 18, TypeScript, Vite
+- **UI**: Tailwind CSS, shadcn/ui, Lucide React
+- **Backend**: Supabase (PostgreSQL + Auth + Edge Functions)
+- **State Management**: TanStack Query
+- **Routing**: React Router Dom
 
-**Use your preferred IDE**
+## Quick Start
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 1. Environment Setup (Ortam Kurulumu)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Create `.env.local` file in the project root:
 
-Follow these steps:
+```env
+# Supabase Configuration
+VITE_SUPABASE_URL=https://oshjfdiwrbhakvdzdubr.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9zaGpmZGl3cmJoYWt2ZHpkdWJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTExMjg2NzEsImV4cCI6MjA2NjcwNDY3MX0.nrFRfxk-puBTUUzU_ij3yiuoKOHQGZHZ6-3Ao2qCsUs
+VITE_SUPABASE_SERVICE_KEY=your_service_role_key_here
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 2. Database Migration (Veritabanı Migrasyonu)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Run the migration script in Supabase SQL Editor:
 
-# Step 3: Install the necessary dependencies.
-npm i
+```sql
+-- Run: supabase/migrations/001_create_profiles_table.sql
+-- This creates the profiles table, RLS policies, and triggers
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### 3. Deploy Edge Function (Edge Function Dağıtımı)
+
+```bash
+# Deploy the approve-user function
+supabase functions deploy approve-user
+
+# Or manually upload supabase/functions/approve-user/index.ts
+```
+
+### 4. Install Dependencies & Run (Bağımlılıkları Yükle ve Çalıştır)
+
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Usage Guide (Kullanım Kılavuzu)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### For End Users (Son Kullanıcılar İçin)
 
-**Use GitHub Codespaces**
+1. **Sign Up** (Kayıt Ol)
+   - Visit `/login` and toggle to signup mode
+   - Fill in full name, email, and password
+   - Submit application for admin review
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+2. **Wait for Approval** (Onay Bekle)
+   - Account will be in pending status
+   - Admin will review and approve the application
+   - You'll receive notification when approved
 
-## What technologies are used for this project?
+3. **Login** (Giriş Yap)
+   - Once approved, use email/password to login
+   - Access will be granted to the main application
 
-This project is built with:
+### For Administrators (Yöneticiler İçin)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+1. **Access Admin Panel** (Yönetici Paneline Erişim)
+   - Login with admin credentials
+   - Navigate to `/admin` (auto-redirected if admin)
 
-## How can I deploy this project?
+2. **Review Pending Users** (Bekleyen Kullanıcıları İncele)
+   - View list of users awaiting approval
+   - See user details (name, email, registration date)
 
-Simply open [Lovable](https://lovable.dev/projects/6e472d6b-a8ba-42e4-a403-69aa783baa5c) and click on Share -> Publish.
+3. **Approve Users** (Kullanıcıları Onayla)
+   - Click "✅ Onayla" button for each user
+   - User will immediately gain access to the system
 
-## Can I connect a custom domain to my Lovable project?
+## Admin Role Setup (Yönetici Rolü Kurulumu)
 
-Yes, you can!
+### Method 1: Using Supabase Dashboard
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+1. Go to Authentication > Users in Supabase Dashboard
+2. Find your user and click on them
+3. In the "Raw User Meta Data" section, add:
+```json
+{
+  "role": "admin"
+}
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Method 2: Using SQL
+
+```sql
+-- Update user metadata to include admin role
+UPDATE auth.users 
+SET raw_app_meta_data = raw_app_meta_data || '{"role": "admin"}'::jsonb 
+WHERE email = 'admin@yourcompany.com';
+```
+
+### Method 3: Email Domain Fallback
+
+The system also checks for `@admin.com` email addresses as fallback admin detection.
+
+## API Endpoints
+
+### Edge Function: approve-user
+
+**Endpoint**: `POST /functions/v1/approve-user`
+
+**Headers**:
+```
+Authorization: Bearer <admin_jwt_token>
+Content-Type: application/json
+```
+
+**Body**:
+```json
+{
+  "uid": "123e4567-e89b-12d3-a456-426614174000"
+}
+```
+
+**Response** (Success):
+```json
+{
+  "message": "User approved successfully",
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "full_name": "John Doe",
+    "email": "john@example.com",
+    "approved": true,
+    "created_at": "2024-01-15T10:30:00.000Z",
+    "updated_at": "2024-01-15T10:35:15.123Z"
+  }
+}
+```
+
+## Testing (Test Etme)
+
+### SQL Tests
+
+```bash
+# Run SQL tests in Supabase SQL Editor
+cat tests/admin-approval.test.sql
+```
+
+### Edge Function Tests
+
+```bash
+# Make script executable
+chmod +x tests/test-edge-function.sh
+
+# Run tests with user ID and admin JWT token
+./tests/test-edge-function.sh <user_id> <admin_jwt_token>
+```
+
+### CLI Tool Tests
+
+```bash
+# Build and run Go CLI tool
+cd tools/
+go build -o admin-cli admin-cli.go
+
+# List pending users
+./admin-cli -list
+
+# Approve a user
+./admin-cli -u 123e4567-e89b-12d3-a456-426614174000
+```
+
+## Security Features (Güvenlik Özellikleri)
+
+1. **Row Level Security (RLS)**
+   - Users can only access their own data when approved
+   - Admins can access all user data
+   - Unapproved users cannot read their own profiles
+
+2. **JWT Authentication**
+   - All API calls require valid JWT tokens
+   - Admin operations require admin role verification
+
+3. **Service Role Protection**
+   - Edge Functions use service role key securely
+   - Direct database access restricted by RLS
+
+## Troubleshooting (Sorun Giderme)
+
+### Common Issues
+
+1. **"Connection string is missing" Error**
+   - Ensure `.env.local` file exists with correct Supabase credentials
+   - Restart development server after creating `.env.local`
+
+2. **Admin Panel Access Denied**
+   - Verify user has admin role in metadata
+   - Check email domain fallback (@admin.com)
+
+3. **Edge Function Not Working**
+   - Ensure function is deployed to Supabase
+   - Check function logs in Supabase Dashboard
+
+4. **RLS Policy Errors**
+   - Run migration script to create proper policies
+   - Verify user authentication status
+
+## Conventional Commits (Konvansiyonel Commit Mesajları)
+
+```bash
+feat(auth): add profiles table with approved flag
+chore(rules): enable RLS policies for profiles  
+feat(func): implement approve_user Edge Function
+feat(ui): add /admin panel in React
+test(ci): add tests for migration, function & CLI
+docs(readme): add admin approval system documentation
+```
+
+## Contributing (Katkıda Bulunma)
+
+1. Fork the repository
+2. Create a feature branch
+3. Follow conventional commit format
+4. Add tests for new features
+5. Submit pull request
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details
+
+---
+
+## Contact
+
+For support or questions about the admin approval system:
+- Email: support@choicefoods.com
+- GitHub Issues: [Create an issue](https://github.com/your-repo/issues)
+
+**Built with ❤️ for Choice Foods wholesale customers**

@@ -38,12 +38,12 @@ export function Footer() {
           <div>
             <h3 className="font-serif font-bold text-lg mb-4">Our Products</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/products" className="text-gray-300 hover:text-accentRed transition-colors">View All Products</Link></li>
-              <li><a href="#" className="text-gray-300 hover:text-accentRed transition-colors">Premium Grains</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-accentRed transition-colors">Frozen Vegetables</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-accentRed transition-colors">Imported Beverages</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-accentRed transition-colors">European Wafers & Cakes</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-accentRed transition-colors">Dairy Products</a></li>
+              <li><span className="text-gray-300">Premium Grains</span></li>
+              <li><span className="text-gray-300">Frozen Vegetables</span></li>
+              <li><span className="text-gray-300">Imported Beverages</span></li>
+              <li><span className="text-gray-300">European Wafers & Cakes</span></li>
+              <li><span className="text-gray-300">Dairy Products</span></li>
+              <li className="pt-2"><span className="text-primaryBlue text-xs">*Member login required to view catalog</span></li>
             </ul>
           </div>
 
@@ -52,7 +52,6 @@ export function Footer() {
             <h3 className="font-serif font-bold text-lg mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm">
               <li><Link to="/" className="text-gray-300 hover:text-accentRed transition-colors">Home</Link></li>
-              <li><Link to="/products" className="text-gray-300 hover:text-accentRed transition-colors">Catalog</Link></li>
               <li><Link to="/contact" className="text-gray-300 hover:text-accentRed transition-colors">Contact</Link></li>
               <li><Link to="/login" className="text-gray-300 hover:text-accentRed transition-colors">Member Login</Link></li>
             </ul>

@@ -1,5 +1,8 @@
-import { useState } from "react";
-import { Search, Filter, Grid, List } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
+import { Search, Filter, Grid, List, Lock, ShoppingCart, Plus } from "lucide-react";
+import { supabase, getCurrentUserProfile } from "../lib/supabase";
+import { useCart } from "../contexts/CartContext";
 
 const categories = [
   "All Categories",
@@ -118,6 +121,84 @@ export default function Products() {
   const [selectedCountry, setSelectedCountry] = useState("All Countries");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { addItem, openCart } = useCart();
+
+  // Check auth status
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setUser(session.user);
+          const userProfile = await getCurrentUserProfile();
+          setProfile(userProfile);
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        setUser(session.user);
+        const userProfile = await getCurrentUserProfile();
+        setProfile(userProfile);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setProfile(null);
+      }
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Show loading while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-lightGrey flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primaryBlue mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect if not authenticated
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Show approval pending message if not approved
+  if (!profile?.approved) {
+    return (
+      <div className="min-h-screen bg-lightGrey flex items-center justify-center">
+        <div className="max-w-md mx-auto text-center p-8">
+          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Lock className="h-8 w-8 text-yellow-600" />
+          </div>
+          <h1 className="text-2xl font-serif font-bold text-neutralBlack mb-4">
+            Account Pending Approval
+          </h1>
+          <p className="text-gray-600 mb-6">
+            Your account is currently under review. You'll gain access to our product catalog once your account is approved by our team.
+          </p>
+          <p className="text-sm text-gray-500">
+            This process typically takes 1-2 business days. Thank you for your patience!
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -127,6 +208,21 @@ export default function Products() {
     
     return matchesSearch && matchesCategory && matchesCountry;
   });
+
+  const handleAddToCart = (product: any) => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      category: product.category,
+      country: product.country,
+      packSize: product.packSize,
+      image: product.image,
+      tags: product.tags,
+      quickbooks_id: product.quickbooks_id
+    });
+    openCart();
+  };
 
   return (
     <div className="min-h-screen bg-lightGrey">
@@ -275,8 +371,12 @@ export default function Products() {
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-500">{product.packSize}</span>
-                        <button className="btn-outline text-sm px-4 py-2">
-                          Request Price
+                        <button 
+                          onClick={() => handleAddToCart(product)}
+                          className="btn-primary text-sm px-4 py-2 flex items-center space-x-2"
+                        >
+                          <Plus className="h-4 w-4" />
+                          <span>Add to Cart</span>
                         </button>
                       </div>
                     </div>
@@ -316,8 +416,12 @@ export default function Products() {
                           <div className="text-sm text-gray-500">
                             <span className="font-medium">{product.packSize}</span> • {product.country}
                           </div>
-                          <button className="btn-outline">
-                            Request Price
+                          <button 
+                            onClick={() => handleAddToCart(product)}
+                            className="btn-primary flex items-center space-x-2"
+                          >
+                            <Plus className="h-4 w-4" />
+                            <span>Add to Cart</span>
                           </button>
                         </div>
                       </div>

@@ -1,19 +1,18 @@
 import { useState } from "react";
 import { MapPin, Phone, Mail, Clock, Send, MessageCircle } from "lucide-react";
+import { useContactRequests } from "../hooks/useContactRequests";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     company: "",
-    phone: "",
-    subject: "",
-    message: "",
+    password: "",
     honeypot: "" // Hidden field for spam prevention
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const { submitContactRequest, loading, error } = useContactRequests();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -27,14 +26,16 @@ export default function Contact() {
       return; // Likely spam
     }
 
-    setIsSubmitting(true);
-    
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    console.log("Form submitted:", formData);
-    setIsSubmitted(true);
-    setIsSubmitting(false);
+    const result = await submitContactRequest({
+      name: formData.name,
+      email: formData.email,
+      company: formData.company,
+      password: formData.password
+    });
+
+    if (result.success) {
+      setIsSubmitted(true);
+    }
   };
 
   if (isSubmitted) {
@@ -59,9 +60,7 @@ export default function Contact() {
                   name: "",
                   email: "",
                   company: "",
-                  phone: "",
-                  subject: "",
-                  message: "",
+                  password: "",
                   honeypot: ""
                 });
               }}
@@ -181,7 +180,7 @@ export default function Contact() {
           <div>
             <div className="bg-white rounded-xl p-8 shadow-elevation">
               <h3 className="text-2xl font-serif font-bold text-neutralBlack mb-6">
-                Send us a Message
+                Request Membership
               </h3>
 
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -196,104 +195,84 @@ export default function Contact() {
                   autoComplete="off"
                 />
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-neutralBlack mb-2">Name *</label>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
-                      placeholder="Your full name"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-neutralBlack mb-2">Email *</label>
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
-                      placeholder="your@email.com"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-neutralBlack mb-2">Company</label>
-                    <input
-                      type="text"
-                      value={formData.company}
-                      onChange={(e) => handleInputChange('company', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
-                      placeholder="Your company name"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-neutralBlack mb-2">Phone</label>
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
-                      placeholder="+1 (555) 123-4567"
-                    />
-                  </div>
-                </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-neutralBlack mb-2">Subject *</label>
-                  <select
-                    value={formData.subject}
-                    onChange={(e) => handleInputChange('subject', e.target.value)}
+                  <label className="block text-sm font-medium text-neutralBlack mb-2">Name *</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
-                    required
-                  >
-                    <option value="">Select a subject</option>
-                    <option value="product-inquiry">Product Inquiry</option>
-                    <option value="pricing">Pricing & Orders</option>
-                    <option value="general">General Information</option>
-                    <option value="partnership">Partnership Opportunities</option>
-                    <option value="support">Customer Support</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-neutralBlack mb-2">Message *</label>
-                  <textarea
-                    value={formData.message}
-                    onChange={(e) => handleInputChange('message', e.target.value)}
-                    rows={5}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
-                    placeholder="Tell us how we can help you..."
+                    placeholder="Your full name"
                     required
                   />
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-neutralBlack mb-2">Email *</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
+                    placeholder="your@email.com"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-neutralBlack mb-2">Company Name *</label>
+                  <input
+                    type="text"
+                    value={formData.company}
+                    onChange={(e) => handleInputChange('company', e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
+                    placeholder="Your company name"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-neutralBlack mb-2">Password *</label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
+                    placeholder="Choose a secure password"
+                    minLength={6}
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Password must be at least 6 characters long
+                  </p>
+                </div>
+
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={loading}
                   className="w-full btn-primary"
                 >
-                  {isSubmitting ? (
+                  {loading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Sending...
+                      Submitting...
                     </>
                   ) : (
                     <>
-                      Send
+                      Request Membership
                       <Send className="ml-2 h-4 w-4" />
                     </>
                   )}
                 </button>
 
+                {error && (
+                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-600 text-sm">{error}</p>
+                  </div>
+                )}
+
                 <p className="text-sm text-gray-500 text-center">
-                  By submitting this form, you agree to our privacy policy and terms of service.
+                  By submitting this form, you're requesting wholesale membership with Choice Foods. Our team will review your application and contact you within 1 business day.
                 </p>
               </form>
             </div>

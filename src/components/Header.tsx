@@ -1,7 +1,9 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Phone, Mail } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useState, useEffect, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, Phone, Mail, User, LogOut, Settings, ShieldCheck, ChevronDown, ShoppingCart } from "lucide-react";
+import { cn } from "../lib/utils";
+import { supabase, checkAdminRole, getCurrentUserProfile } from "../lib/supabase";
+import { useCart } from "../contexts/CartContext";
 
 const navigation = [
   {
@@ -9,26 +11,95 @@ const navigation = [
     href: "/",
   },
   {
-    name: "Catalog",
-    href: "/products",
-  },
-  {
     name: "Contact",
     href: "/contact",
-  },
-  {
-    name: "Member Login",
-    href: "/login",
   }
 ];
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
   const location = useLocation();
+  const navigate = useNavigate();
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const { state: cartState, toggleCart } = useCart();
 
   const isActive = (href: string) => {
     if (href === "/") return location.pathname === "/";
     return location.pathname.startsWith(href);
+  };
+
+  // Check auth status
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setUser(session.user);
+          
+          // Check admin role
+          const adminStatus = await checkAdminRole();
+          setIsAdmin(adminStatus);
+          
+          // Get profile
+          const userProfile = await getCurrentUserProfile();
+          setProfile(userProfile);
+        } else {
+          setUser(null);
+          setIsAdmin(false);
+          setProfile(null);
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        setUser(session.user);
+        const adminStatus = await checkAdminRole();
+        setIsAdmin(adminStatus);
+        const userProfile = await getCurrentUserProfile();
+        setProfile(userProfile);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setIsAdmin(false);
+        setProfile(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      console.log('Header: Starting sign out...');
+      await supabase.auth.signOut();
+      console.log('Header: Sign out successful, navigating to home...');
+      navigate('/');
+      setIsMobileMenuOpen(false);
+      setIsUserMenuOpen(false);
+    } catch (error) {
+      console.error('Header: Sign out error:', error);
+    }
   };
 
   return (
@@ -80,13 +151,132 @@ export function Header() {
                 {item.name}
               </Link>
             ))}
+            {/* Sadece üyeler için Catalog */}
+            {user && profile?.approved && (
+              <Link
+                to="/products"
+                className={cn(
+                  "font-medium transition-colors hover:text-primaryBlue focus-ring px-3 py-2 rounded-lg",
+                  isActive("/products") ? "text-primaryBlue" : "text-neutralBlack"
+                )}
+              >
+                Catalog
+              </Link>
+            )}
           </div>
 
-          {/* CTA Button */}
+          {/* Auth Section */}
           <div className="hidden lg:flex items-center space-x-4">
-            <Link to="/contact" className="btn-primary">
-              Get In Touch
-            </Link>
+            {user && profile?.approved && (
+              <button
+                onClick={toggleCart}
+                className="relative p-2 text-neutralBlack hover:text-primaryBlue transition-colors focus:outline-none focus:ring-2 focus:ring-primaryBlue focus:ring-offset-2 rounded-lg"
+              >
+                <ShoppingCart className="h-6 w-6" />
+                {cartState.totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-accentRed text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartState.totalItems}
+                  </span>
+                )}
+              </button>
+            )}
+            {user ? (
+              <div className="flex items-center space-x-4">
+                {/* User Menu Dropdown */}
+                <div className="relative" ref={userMenuRef}>
+                  <button
+                    onClick={() => {
+                      console.log('Header: User menu button clicked, current state:', isUserMenuOpen);
+                      setIsUserMenuOpen(!isUserMenuOpen);
+                    }}
+                    className="flex items-center space-x-2 text-sm bg-white border border-gray-200 rounded-lg px-3 py-2 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primaryBlue focus:ring-offset-2"
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-full flex items-center justify-center">
+                      <User className="h-4 w-4 text-white" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-medium text-neutralBlack">
+                        {profile?.full_name || user.email?.split('@')[0]}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {profile?.approved ? 'Approved Member' : 'Pending Approval'}
+                      </div>
+                    </div>
+                    <ChevronDown className={cn(
+                      "h-4 w-4 text-gray-400 transition-transform",
+                      isUserMenuOpen && "rotate-180"
+                    )} />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-elevation border border-gray-200 py-2 z-50">
+                      {/* User Info */}
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <div className="font-medium text-neutralBlack">
+                          {profile?.full_name || 'User'}
+                        </div>
+                        <div className="text-sm text-gray-500">{user.email}</div>
+                        <div className="flex items-center mt-2">
+                          <div className={cn(
+                            "w-2 h-2 rounded-full mr-2",
+                            profile?.approved ? "bg-green-500" : "bg-yellow-500"
+                          )} />
+                          <span className="text-xs text-gray-500">
+                            {profile?.approved ? 'Account Approved' : 'Pending Approval'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Menu Items */}
+                      <div className="py-1">
+                        <Link
+                          to="/profile"
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          onClick={() => {
+                            console.log('Header: Profile link clicked');
+                            setIsUserMenuOpen(false);
+                          }}
+                        >
+                          <Settings className="h-4 w-4 mr-3" />
+                          My Profile
+                        </Link>
+                        
+                        {isAdmin && (
+                          <Link
+                            to="/admin"
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <ShieldCheck className="h-4 w-4 mr-3" />
+                            Admin Panel
+                          </Link>
+                        )}
+                        
+                        <div className="border-t border-gray-100 my-1"></div>
+                        
+                        <button
+                          onClick={handleSignOut}
+                          className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <LogOut className="h-4 w-4 mr-3" />
+                          Sign Out
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <Link to="/login" className="text-neutralBlack hover:text-primaryBlue transition-colors">
+                  Member Login
+                </Link>
+                <Link to="/contact" className="btn-primary">
+                  Get In Touch
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -119,7 +309,96 @@ export function Header() {
                   {item.name}
                 </Link>
               ))}
-              <div className="pt-4 space-y-3">
+              
+              {/* Mobile - Sadece üyeler için Catalog */}
+              {user && profile?.approved && (
+                <Link
+                  to="/products"
+                  className={cn(
+                    "block px-3 py-2 rounded-lg font-medium transition-colors",
+                    isActive("/products") ? "text-primaryBlue bg-lightGrey" : "text-neutralBlack hover:text-primaryBlue hover:bg-lightGrey"
+                  )}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Catalog
+                </Link>
+              )}
+              
+              {/* Mobile Auth Section */}
+              <div className="pt-4 border-t border-gray-200 space-y-3">
+                {user && profile?.approved && (
+                  <button
+                    onClick={() => {
+                      toggleCart();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center justify-between w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <ShoppingCart className="h-4 w-4" />
+                      <span>Shopping Cart</span>
+                    </div>
+                    {cartState.totalItems > 0 && (
+                      <span className="bg-accentRed text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {cartState.totalItems}
+                      </span>
+                    )}
+                  </button>
+                )}
+                
+                {user ? (
+                  <>
+                    <div className="flex items-center space-x-2 px-3 py-2 text-sm bg-gray-50 rounded-lg">
+                      <div className="w-8 h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-full flex items-center justify-center">
+                        <User className="h-4 w-4 text-white" />
+                      </div>
+                      <div>
+                        <div className="font-medium text-neutralBlack">
+                          {profile?.full_name || user.email?.split('@')[0]}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {profile?.approved ? 'Approved Member' : 'Pending Approval'}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Link
+                      to="/profile"
+                      className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Settings className="h-4 w-4" />
+                      <span>My Profile</span>
+                    </Link>
+                    
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <ShieldCheck className="h-4 w-4" />
+                        <span>Admin Panel</span>
+                      </Link>
+                    )}
+                    
+                    <button
+                      onClick={handleSignOut}
+                      className="flex items-center space-x-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Sign Out</span>
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="block btn-outline text-center"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Member Login
+                  </Link>
+                )}
                 <Link
                   to="/contact"
                   className="block btn-primary text-center"
@@ -128,6 +407,7 @@ export function Header() {
                   Get In Touch
                 </Link>
               </div>
+              
               <div className="pt-4 border-t border-gray-200 space-y-2">
                 <a href="tel:336-782-8283" className="flex items-center space-x-2 text-sm text-gray-600">
                   <Phone className="h-4 w-4" />
