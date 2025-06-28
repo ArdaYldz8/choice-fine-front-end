@@ -1,31 +1,71 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Choice Fine Foods Design System */
+/* Choice Fine Foods Design System - KILL ALL YELLOW */
+
+/* FORCE NEW BRAND COLORS - NO MORE YELLOW EVER */
+:root {
+  --color-primary-blue: #2A4D7F !important;
+  --color-accent-red: #E63946 !important;
+  --color-neutral-black: #000000 !important;
+  --color-light-grey: #F5F6F7 !important;
+  
+  /* SEMANTIC COLORS - OVERRIDE EVERYTHING */
+  --color-primary: var(--color-primary-blue) !important;
+  --color-secondary: var(--color-accent-red) !important;
+  --color-accent: var(--color-accent-red) !important;
+  --color-text: var(--color-neutral-black) !important;
+  --color-background: var(--color-light-grey) !important;
+  --color-surface: #ffffff !important;
+}
+
+/* KILL ALL YELLOW/OLIVE/SAFFRON COLORS FOREVER */
+.bg-yellow-400, .bg-yellow-500, .bg-yellow-600,
+.bg-olive, .bg-saffron, .bg-amber-400, .bg-amber-500,
+.text-yellow-400, .text-yellow-500, .text-yellow-600,
+.text-olive, .text-saffron, .text-amber-400 {
+  background-color: #2A4D7F !important;
+  color: white !important;
+}
+
+/* FORCE ALL SECTIONS TO USE NEW COLORS */
+.bg-soft-bg, .bg-muted {
+  background-color: #F5F6F7 !important;
+}
+
+/* KILL OLD TEAL/MIDNIGHT COLORS */
+.bg-teal, .bg-midnight, .text-teal, .text-midnight {
+  background-color: #2A4D7F !important;
+  color: white !important;
+}
+
+.text-teal, .text-midnight {
+  color: #000000 !important;
+  background-color: transparent !important;
+}
 
 @layer base {
   :root {
-    --background: 255 255 255;
-    --foreground: 2 20 49;
+    --background: 245 246 247;
+    --foreground: 0 0 0;
 
     --card: 255 255 255;
-    --card-foreground: 2 20 49;
+    --card-foreground: 0 0 0;
 
     --popover: 255 255 255;
-    --popover-foreground: 2 20 49;
+    --popover-foreground: 0 0 0;
 
-    --primary: 2 20 49;
+    --primary: 42 77 127;
     --primary-foreground: 255 255 255;
 
-    --secondary: 4 108 140;
+    --secondary: 230 57 70;
     --secondary-foreground: 255 255 255;
 
-    --muted: 244 247 248;
-    --muted-foreground: 2 20 49;
+    --muted: 245 246 247;
+    --muted-foreground: 0 0 0;
 
-    --accent: 122 181 92;
+    --accent: 230 57 70;
     --accent-foreground: 255 255 255;
 
     --destructive: 0 84.2% 60.2%;
@@ -48,25 +88,25 @@
   }
 
   .dark {
-    --background: 2 20 49;
-    --foreground: 255 255 255;
+    --background: 0 0 0;
+    --foreground: 245 246 247;
 
-    --card: 2 20 49;
-    --card-foreground: 255 255 255;
+    --card: 26 26 26;
+    --card-foreground: 245 246 247;
 
-    --popover: 2 20 49;
-    --popover-foreground: 255 255 255;
+    --popover: 0 0 0;
+    --popover-foreground: 245 246 247;
 
-    --primary: 255 255 255;
-    --primary-foreground: 2 20 49;
+    --primary: 245 246 247;
+    --primary-foreground: 0 0 0;
 
-    --secondary: 4 108 140;
+    --secondary: 230 57 70;
     --secondary-foreground: 255 255 255;
 
-    --muted: 35 35 35;
-    --muted-foreground: 200 200 200;
+    --muted: 26 26 26;
+    --muted-foreground: 163 163 163;
 
-    --accent: 122 181 92;
+    --accent: 230 57 70;
     --accent-foreground: 255 255 255;
 
     --destructive: 0 62.8% 30.6%;
@@ -94,6 +134,15 @@
 
   body {
     @apply bg-background text-foreground font-sans;
+    background-color: #F5F6F7 !important;
+    color: #000000 !important;
+  }
+  
+  /* KILL ANY POTENTIAL YELLOW ANYWHERE */
+  * {
+    --tw-yellow-400: #2A4D7F !important;
+    --tw-amber-400: #2A4D7F !important;
+    --tw-lime-400: #2A4D7F !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -103,11 +152,11 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-xl bg-olive text-white px-8 py-4 font-medium text-lg transition-all duration-200 hover:bg-opacity-90 hover:shadow-elevation focus:outline-none focus:ring-2 focus:ring-olive focus:ring-offset-2;
+    @apply inline-flex items-center justify-center rounded-xl bg-primaryBlue text-white px-8 py-4 font-medium text-lg transition-all duration-200 hover:bg-primary-600 hover:shadow-elevation focus:outline-none focus:ring-2 focus:ring-primaryBlue focus:ring-offset-2;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-xl border-2 border-olive text-olive bg-transparent px-8 py-4 font-medium text-lg transition-all duration-200 hover:bg-olive hover:text-white focus:outline-none focus:ring-2 focus:ring-olive focus:ring-offset-2;
+    @apply inline-flex items-center justify-center rounded-xl border-2 border-accentRed text-accentRed bg-transparent px-8 py-4 font-medium text-lg transition-all duration-200 hover:bg-accentRed hover:text-white focus:outline-none focus:ring-2 focus:ring-accentRed focus:ring-offset-2;
   }
 
   .btn-outline {
@@ -128,6 +177,62 @@
 
   .text-gradient {
     @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
+  }
+}
+
+@layer utilities {
+  /* NUCLEAR OPTION - KILL ALL YELLOW UTILITY CLASSES */
+  .bg-yellow-100, .bg-yellow-200, .bg-yellow-300, .bg-yellow-400, .bg-yellow-500, .bg-yellow-600 {
+    background-color: #2A4D7F !important;
+  }
+  
+  .bg-amber-100, .bg-amber-200, .bg-amber-300, .bg-amber-400, .bg-amber-500, .bg-amber-600 {
+    background-color: #2A4D7F !important;
+  }
+  
+  .bg-lime-100, .bg-lime-200, .bg-lime-300, .bg-lime-400, .bg-lime-500, .bg-lime-600 {
+    background-color: #2A4D7F !important;
+  }
+  
+  /* FORCE BRAND COLORS ON EVERYTHING */
+  .bg-primaryBlue {
+    background-color: #2A4D7F !important;
+  }
+  
+  .bg-accentRed {
+    background-color: #E63946 !important;
+  }
+  
+  .bg-neutralBlack {
+    background-color: #000000 !important;
+  }
+  
+  .bg-lightGrey {
+    background-color: #F5F6F7 !important;
+  }
+  
+  .text-primaryBlue {
+    color: #2A4D7F !important;
+  }
+  
+  .text-accentRed {
+    color: #E63946 !important;
+  }
+  
+  .text-neutralBlack {
+    color: #000000 !important;
+  }
+  
+  .text-lightGrey {
+    color: #F5F6F7 !important;
+  }
+  
+  /* OVERRIDE ANY POTENTIAL YELLOW GRADIENTS */
+  .from-yellow-400, .to-yellow-400, .via-yellow-400,
+  .from-amber-400, .to-amber-400, .via-amber-400,
+  .from-lime-400, .to-lime-400, .via-lime-400 {
+    --tw-gradient-from: #2A4D7F !important;
+    --tw-gradient-to: #E63946 !important;
   }
 }
 

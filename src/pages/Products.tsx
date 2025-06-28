@@ -1,18 +1,13 @@
-
 import { useState } from "react";
 import { Search, Filter, Grid, List } from "lucide-react";
 
 const categories = [
   "All Categories",
-  "Olive Oils",
-  "Vinegars", 
-  "Pasta & Grains",
-  "Sauces & Condiments",
-  "Spices & Seasonings",
-  "Preserved Foods",
-  "Dairy & Cheese",
-  "Seafood",
-  "Confections"
+  "Premium Grains", 
+  "Frozen Vegetables",
+  "Imported Beverages",
+  "European Wafers & Cakes",
+  "Dairy Products"
 ];
 
 const countries = [
@@ -21,76 +16,98 @@ const countries = [
   "Spain",
   "Greece", 
   "France",
-  "Turkey",
-  "Morocco",
-  "Lebanon"
+  "Germany",
+  "Netherlands",
+  "Turkey"
 ];
 
 const products = [
   {
     id: 1,
-    name: "Premium Extra Virgin Olive Oil",
-    description: "Cold-pressed from Kalamata olives. Rich, peppery finish.",
-    category: "Olive Oils",
-    country: "Greece",
-    packSize: "500ml Glass Bottle",
-    image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    tags: ["Organic", "DOP", "Cold Pressed"],
+    name: "Premium Whole Wheat Flour",
+    description: "High-quality whole wheat flour sourced from the finest grains around the world.",
+    category: "Premium Grains",
+    country: "Italy",
+    packSize: "2kg Bag",
+    image: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    tags: ["Organic", "Whole Grain", "Premium"],
     featured: true
   },
   {
     id: 2,
-    name: "18-Year Aged Balsamic Vinegar",
-    description: "Traditional Modena DOP. Complex, sweet-tart profile.",
-    category: "Vinegars",
+    name: "Organic Quinoa",
+    description: "Premium quinoa grains, perfect for healthy and nutritious meals.",
+    category: "Premium Grains",
     country: "Italy", 
-    packSize: "250ml Glass Bottle",
-    image: "https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    tags: ["DOP", "Aged", "Premium"],
+    packSize: "1kg Package",
+    image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    tags: ["Organic", "Gluten-Free", "Superfood"],
     featured: true
   },
   {
     id: 3,
-    name: "Bronze-Die Spaghetti",
-    description: "Hand-crafted using traditional bronze dies.",
-    category: "Pasta & Grains",
-    country: "Italy",
-    packSize: "500g Package", 
-    image: "https://images.unsplash.com/photo-1588013273468-315900bafd4c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    tags: ["Artisanal", "Bronze Die", "Traditional"],
+    name: "Frozen Mediterranean Vegetables",
+    description: "Premium frozen vegetable mix including exotic and common varieties.",
+    category: "Frozen Vegetables",
+    country: "Spain",
+    packSize: "1kg Frozen Pack", 
+    image: "https://images.unsplash.com/photo-1506976785307-8732e854ad03?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    tags: ["Frozen", "Mediterranean", "Popular Brand"],
     featured: false
   },
   {
     id: 4,
-    name: "Sicilian Sea Salt",
-    description: "Hand-harvested from the Mediterranean. Pure mineral taste.",
-    category: "Spices & Seasonings",
-    country: "Italy",
-    packSize: "1kg Bag",
-    image: "https://images.unsplash.com/photo-1516684669134-de6f26736c5d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    tags: ["Hand Harvested", "Natural", "Mineral"],
+    name: "Organic Frozen Spinach",
+    description: "Premium frozen spinach from the most popular brands in the market.",
+    category: "Frozen Vegetables",
+    country: "Netherlands",
+    packSize: "500g Frozen Pack",
+    image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    tags: ["Organic", "Frozen", "Healthy"],
     featured: false
   },
   {
     id: 5,
-    name: "Harissa Paste",
-    description: "Spicy North African chili paste. Complex heat and flavor.",
-    category: "Sauces & Condiments", 
-    country: "Morocco",
-    packSize: "180g Jar",
-    image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    tags: ["Spicy", "Traditional", "Authentic"],
+    name: "Premium Italian Mineral Water",
+    description: "Imported Italian mineral water supporting a healthy and balanced lifestyle.",
+    category: "Imported Beverages", 
+    country: "Italy",
+    packSize: "1L Glass Bottle",
+    image: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    tags: ["Imported", "Mineral", "Premium"],
     featured: false
   },
   {
     id: 6,
-    name: "Manchego Cheese DOP",
-    description: "Aged sheep's milk cheese from La Mancha. Nutty and firm.",
-    category: "Dairy & Cheese",
-    country: "Spain",
-    packSize: "200g Wedge",
+    name: "Italian Wafers Assortment",
+    description: "The best Italian wafers available in the US from premium European brands.",
+    category: "European Wafers & Cakes",
+    country: "Italy",
+    packSize: "200g Package",
     image: "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    tags: ["DOP", "Aged", "Sheep Milk"],
+    tags: ["Italian", "European", "Premium"],
+    featured: false
+  },
+  {
+    id: 7,
+    name: "Premium European Cheese Selection",
+    description: "Extensive selection of high-quality cheeses from the best European producers.",
+    category: "Dairy Products",
+    country: "France",
+    packSize: "250g Package",
+    image: "https://images.unsplash.com/photo-1452195100486-9cc805987862?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    tags: ["European", "Premium", "Cheese"],
+    featured: true
+  },
+  {
+    id: 8,
+    name: "Organic Greek Yogurt",
+    description: "Premium quality Greek yogurt and other dairy products.",
+    category: "Dairy Products",
+    country: "Greece",
+    packSize: "500g Container",
+    image: "https://images.unsplash.com/photo-1571212515416-8b71b4752fdc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    tags: ["Organic", "Greek", "Healthy"],
     featured: false
   }
 ];
@@ -112,16 +129,16 @@ export default function Products() {
   });
 
   return (
-    <div className="min-h-screen bg-soft-bg">
+    <div className="min-h-screen bg-lightGrey">
       {/* Header */}
       <div className="bg-white border-b">
         <div className="container-custom py-8">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-midnight mb-4">
-            Product Catalog
+          <h1 className="text-4xl md:text-5xl font-serif font-bold text-neutralBlack mb-4">
+            Our Product Catalog
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl">
-            Discover our extensive selection of premium Mediterranean & specialty groceries. 
-            Over 3,000 SKUs sourced directly from trusted producers worldwide.
+            Choice Foods supplies our clients with the best and freshest products in the market. 
+            Discover our wide variety of premium Mediterranean & specialty products from trusted producers worldwide.
           </p>
         </div>
       </div>
@@ -131,11 +148,11 @@ export default function Products() {
           {/* Filters Sidebar */}
           <div className={`lg:w-64 space-y-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
             <div className="bg-white rounded-xl p-6 shadow-elevation">
-              <h3 className="font-serif font-bold text-lg text-midnight mb-4">Filters</h3>
+              <h3 className="font-serif font-bold text-lg text-neutralBlack mb-4">Filters</h3>
               
               {/* Search */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-midnight mb-2">Search Products</label>
+                <label className="block text-sm font-medium text-neutralBlack mb-2">Search Products</label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
@@ -143,18 +160,18 @@ export default function Products() {
                     placeholder="Search products..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
                   />
                 </div>
               </div>
 
               {/* Category Filter */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-midnight mb-2">Category</label>
+                <label className="block text-sm font-medium text-neutralBlack mb-2">Category</label>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal focus:border-transparent"
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
                 >
                   {categories.map((category) => (
                     <option key={category} value={category}>{category}</option>
@@ -164,11 +181,11 @@ export default function Products() {
 
               {/* Country Filter */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-midnight mb-2">Country of Origin</label>
+                <label className="block text-sm font-medium text-neutralBlack mb-2">Country of Origin</label>
                 <select
                   value={selectedCountry}
                   onChange={(e) => setSelectedCountry(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal focus:border-transparent"
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
                 >
                   {countries.map((country) => (
                     <option key={country} value={country}>{country}</option>
@@ -210,7 +227,7 @@ export default function Products() {
                 <button
                   onClick={() => setViewMode("grid")}
                   className={`p-2 rounded-lg transition-colors ${
-                    viewMode === "grid" ? "bg-teal text-white" : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                    viewMode === "grid" ? "bg-primaryBlue text-white" : "bg-gray-200 text-gray-600 hover:bg-gray-300"
                   }`}
                 >
                   <Grid className="h-4 w-4" />
@@ -218,7 +235,7 @@ export default function Products() {
                 <button
                   onClick={() => setViewMode("list")}
                   className={`p-2 rounded-lg transition-colors ${
-                    viewMode === "list" ? "bg-teal text-white" : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                    viewMode === "list" ? "bg-primaryBlue text-white" : "bg-gray-200 text-gray-600 hover:bg-gray-300"
                   }`}
                 >
                   <List className="h-4 w-4" />
@@ -238,20 +255,20 @@ export default function Products() {
                         className="w-full h-full object-cover"
                       />
                       {product.featured && (
-                        <div className="absolute top-4 left-4 bg-olive text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <div className="absolute top-4 left-4 bg-accentRed text-white px-3 py-1 rounded-full text-sm font-medium">
                           Featured
                         </div>
                       )}
-                      <div className="absolute top-4 right-4 bg-white/90 px-2 py-1 rounded text-xs font-medium text-midnight">
+                      <div className="absolute top-4 right-4 bg-white/90 px-2 py-1 rounded text-xs font-medium text-neutralBlack">
                         {product.country}
                       </div>
                     </div>
                     <div className="p-6">
-                      <h3 className="font-serif font-bold text-lg text-midnight mb-2">{product.name}</h3>
+                      <h3 className="font-serif font-bold text-lg text-neutralBlack mb-2">{product.name}</h3>
                       <p className="text-gray-600 mb-3 text-sm">{product.description}</p>
                       <div className="flex flex-wrap gap-1 mb-4">
                         {product.tags.map((tag) => (
-                          <span key={tag} className="bg-soft-bg text-teal px-2 py-1 rounded-full text-xs font-medium">
+                          <span key={tag} className="bg-lightGrey text-primaryBlue px-2 py-1 rounded-full text-xs font-medium">
                             {tag}
                           </span>
                         ))}
@@ -280,9 +297,9 @@ export default function Products() {
                       </div>
                       <div className="flex-1 space-y-3">
                         <div className="flex items-start justify-between">
-                          <h3 className="font-serif font-bold text-xl text-midnight">{product.name}</h3>
+                          <h3 className="font-serif font-bold text-xl text-neutralBlack">{product.name}</h3>
                           {product.featured && (
-                            <span className="bg-olive text-white px-3 py-1 rounded-full text-sm font-medium">
+                            <span className="bg-accentRed text-white px-3 py-1 rounded-full text-sm font-medium">
                               Featured
                             </span>
                           )}
@@ -290,7 +307,7 @@ export default function Products() {
                         <p className="text-gray-600">{product.description}</p>
                         <div className="flex flex-wrap gap-2">
                           {product.tags.map((tag) => (
-                            <span key={tag} className="bg-soft-bg text-teal px-3 py-1 rounded-full text-sm font-medium">
+                            <span key={tag} className="bg-lightGrey text-primaryBlue px-3 py-1 rounded-full text-sm font-medium">
                               {tag}
                             </span>
                           ))}
@@ -315,7 +332,7 @@ export default function Products() {
                 <div className="text-gray-400 mb-4">
                   <Search className="h-16 w-16 mx-auto" />
                 </div>
-                <h3 className="text-xl font-serif font-bold text-midnight mb-2">No products found</h3>
+                <h3 className="text-xl font-serif font-bold text-neutralBlack mb-2">No products found</h3>
                 <p className="text-gray-600 mb-6">Try adjusting your search criteria or filters.</p>
                 <button
                   onClick={() => {

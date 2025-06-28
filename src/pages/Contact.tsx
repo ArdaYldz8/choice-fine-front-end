@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Send, MessageCircle } from "lucide-react";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -40,17 +39,17 @@ export default function Contact() {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-soft-bg flex items-center justify-center">
+      <div className="min-h-screen bg-lightGrey flex items-center justify-center">
         <div className="container-custom max-w-2xl text-center">
           <div className="bg-white rounded-2xl p-12 shadow-elevation">
-            <div className="w-24 h-24 bg-olive rounded-full flex items-center justify-center mx-auto mb-8">
-              <Send className="h-12 w-12 text-white" />
+            <div className="w-24 h-24 bg-accentRed rounded-full flex items-center justify-center mx-auto mb-8">
+              <MessageCircle className="h-12 w-12 text-white" />
             </div>
-            <h1 className="text-3xl md:text-4xl font-serif font-bold text-midnight mb-6">
-              Message Sent Successfully!
+            <h1 className="text-3xl md:text-4xl font-serif font-bold text-neutralBlack mb-6">
+              Your details were sent successfully!
             </h1>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              Thank you for contacting Choice Fine Foods. Our team will review your message 
+              Thank you for contacting Choice Foods. Our team will review your message 
               and get back to you within 1 business day.
             </p>
             <button
@@ -79,14 +78,13 @@ export default function Contact() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-midnight to-teal text-white py-16">
+      <section className="bg-gradient-to-r from-primaryBlue to-neutralBlack text-white py-16">
         <div className="container-custom text-center">
           <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6">
-            Contact Us
+            Get In Touch
           </h1>
           <p className="text-xl max-w-3xl mx-auto leading-relaxed opacity-90">
-            Ready to partner with Choice Fine Foods? Our team is here to help you discover 
-            the perfect Mediterranean & specialty products for your business.
+            Interested in doing business with Choice Foods? Contact us to see what we can do for you.
           </p>
         </div>
       </section>
@@ -95,69 +93,68 @@ export default function Contact() {
         <div className="grid lg:grid-cols-2 gap-16">
           {/* Contact Information */}
           <div>
-            <h2 className="text-3xl font-serif font-bold text-midnight mb-8">
-              Get in Touch
+            <h2 className="text-3xl font-serif font-bold text-neutralBlack mb-8">
+              Contact Information
             </h2>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              Whether you're a retailer looking to expand your specialty food selection or a supplier 
-              interested in partnership opportunities, we'd love to hear from you.
+              Whether you're looking to stock premium Mediterranean products or have questions about our services, 
+              we'd love to hear from you. Our dedicated team is here to help.
             </p>
 
             <div className="space-y-6 mb-8">
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-teal rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-primaryBlue rounded-lg flex items-center justify-center flex-shrink-0">
                   <MapPin className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-midnight mb-1">Address</h3>
+                  <h3 className="font-semibold text-neutralBlack mb-1">Address</h3>
                   <p className="text-gray-600">
-                    1234 Trade Center Drive<br />
-                    Charlotte, NC 28202<br />
+                    409 Prospect St.<br />
+                    High Point, NC 27260<br />
                     United States
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-olive rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-accentRed rounded-lg flex items-center justify-center flex-shrink-0">
                   <Phone className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-midnight mb-1">Phone</h3>
+                  <h3 className="font-semibold text-neutralBlack mb-1">Phone & Fax</h3>
                   <p className="text-gray-600">
-                    <a href="tel:+1-919-555-0123" className="hover:text-teal transition-colors">
-                      (919) 555-0123
+                    <a href="tel:336-782-8283" className="hover:text-primaryBlue transition-colors">
+                      336-782-8283
                     </a><br />
-                    <span className="text-sm">Monday - Friday, 8:00 AM - 6:00 PM EST</span>
+                    <span className="text-sm">Fax: 336-499-3232</span>
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-saffron rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-neutralBlack rounded-lg flex items-center justify-center flex-shrink-0">
                   <Mail className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-midnight mb-1">Email</h3>
+                  <h3 className="font-semibold text-neutralBlack mb-1">Email</h3>
                   <p className="text-gray-600">
-                    <a href="mailto:sales@choicefinefoods.com" className="hover:text-teal transition-colors">
-                      sales@choicefinefoods.com
+                    <a href="mailto:choicefoods@hotmail.com" className="hover:text-primaryBlue transition-colors">
+                      choicefoods@hotmail.com
                     </a><br />
-                    <span className="text-sm">General inquiries & sales</span>
+                    <span className="text-sm">General inquiries & orders</span>
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-teal rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-primaryBlue rounded-lg flex items-center justify-center flex-shrink-0">
                   <Clock className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-midnight mb-1">Business Hours</h3>
+                  <h3 className="font-semibold text-neutralBlack mb-1">Business Hours</h3>
                   <p className="text-gray-600">
-                    Monday - Friday: 8:00 AM - 6:00 PM EST<br />
-                    Saturday: 9:00 AM - 2:00 PM EST<br />
-                    Sunday: Closed
+                    Monday - Friday: 8:00 AM - 4:00 PM EST<br />
+                    Saturday - Sunday: Closed
                   </p>
                 </div>
               </div>
@@ -171,9 +168,9 @@ export default function Contact() {
                   backgroundImage: "url('https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')"
                 }}
               >
-                <div className="w-full h-full bg-midnight/20 flex items-center justify-center">
+                <div className="w-full h-full bg-primaryBlue/20 flex items-center justify-center">
                   <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg">
-                    <span className="text-midnight font-medium">Charlotte, NC Location</span>
+                    <span className="text-neutralBlack font-medium">High Point, NC Location</span>
                   </div>
                 </div>
               </div>
@@ -183,7 +180,7 @@ export default function Contact() {
           {/* Contact Form */}
           <div>
             <div className="bg-white rounded-xl p-8 shadow-elevation">
-              <h3 className="text-2xl font-serif font-bold text-midnight mb-6">
+              <h3 className="text-2xl font-serif font-bold text-neutralBlack mb-6">
                 Send us a Message
               </h3>
 
@@ -201,77 +198,77 @@ export default function Contact() {
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-midnight mb-2">Name *</label>
+                    <label className="block text-sm font-medium text-neutralBlack mb-2">Name *</label>
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal focus:border-transparent"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
                       placeholder="Your full name"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-midnight mb-2">Email *</label>
+                    <label className="block text-sm font-medium text-neutralBlack mb-2">Email *</label>
                     <input
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal focus:border-transparent"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
                       placeholder="your@email.com"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-midnight mb-2">Company</label>
+                    <label className="block text-sm font-medium text-neutralBlack mb-2">Company</label>
                     <input
                       type="text"
                       value={formData.company}
                       onChange={(e) => handleInputChange('company', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal focus:border-transparent"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
                       placeholder="Your company name"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-midnight mb-2">Phone</label>
+                    <label className="block text-sm font-medium text-neutralBlack mb-2">Phone</label>
                     <input
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => handleInputChange('phone', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal focus:border-transparent"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
                       placeholder="+1 (555) 123-4567"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-midnight mb-2">Subject *</label>
+                  <label className="block text-sm font-medium text-neutralBlack mb-2">Subject *</label>
                   <select
                     value={formData.subject}
                     onChange={(e) => handleInputChange('subject', e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal focus:border-transparent"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
                     required
                   >
                     <option value="">Select a subject</option>
                     <option value="product-inquiry">Product Inquiry</option>
-                    <option value="pricing">Pricing & Quotes</option>
+                    <option value="pricing">Pricing & Orders</option>
+                    <option value="general">General Information</option>
                     <option value="partnership">Partnership Opportunities</option>
-                    <option value="supplier">Become a Supplier</option>
                     <option value="support">Customer Support</option>
                     <option value="other">Other</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-midnight mb-2">Message *</label>
+                  <label className="block text-sm font-medium text-neutralBlack mb-2">Message *</label>
                   <textarea
                     value={formData.message}
                     onChange={(e) => handleInputChange('message', e.target.value)}
                     rows={5}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal focus:border-transparent"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
                     placeholder="Tell us how we can help you..."
                     required
                   />
@@ -289,7 +286,7 @@ export default function Contact() {
                     </>
                   ) : (
                     <>
-                      Send Message
+                      Send
                       <Send className="ml-2 h-4 w-4" />
                     </>
                   )}
@@ -303,40 +300,6 @@ export default function Contact() {
           </div>
         </div>
       </div>
-
-      {/* Additional Contact Options */}
-      <section className="bg-soft-bg py-16">
-        <div className="container-custom text-center">
-          <h2 className="text-3xl font-serif font-bold text-midnight mb-8">
-            Other Ways to Connect
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-xl shadow-elevation">
-              <h3 className="font-serif font-bold text-lg text-midnight mb-3">Sales Team</h3>
-              <p className="text-gray-600 mb-4">Ready to place an order or get pricing?</p>
-              <a href="mailto:sales@choicefinefoods.com" className="btn-outline">
-                Contact Sales
-              </a>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-elevation">
-              <h3 className="font-serif font-bold text-lg text-midnight mb-3">Supplier Inquiries</h3>
-              <p className="text-gray-600 mb-4">Interested in becoming a supplier partner?</p>
-              <a href="mailto:sourcing@choicefinefoods.com" className="btn-outline">
-                Contact Sourcing
-              </a>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-elevation">
-              <h3 className="font-serif font-bold text-lg text-midnight mb-3">Customer Support</h3>
-              <p className="text-gray-600 mb-4">Need help with an existing order?</p>
-              <a href="mailto:support@choicefinefoods.com" className="btn-outline">
-                Get Support
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

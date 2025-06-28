@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
@@ -21,39 +20,39 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-soft-bg">
+    <div className="min-h-screen bg-lightGrey">
       <div className="container-custom py-16">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
             <Link to="/" className="inline-flex items-center space-x-3 mb-8">
-              <div className="w-12 h-12 bg-gradient-to-br from-teal to-olive rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center">
                 <span className="text-white font-serif font-bold text-xl">CF</span>
               </div>
               <div>
-                <div className="font-serif font-bold text-xl text-midnight">Choice Fine Foods</div>
-                <div className="text-sm text-teal">Mediterranean & Specialty Groceries</div>
+                <div className="font-serif font-bold text-xl text-neutralBlack">Choice Foods</div>
+                <div className="text-sm text-primaryBlue">Your Source for Fine Mediterranean Products</div>
               </div>
             </Link>
             
-            <h1 className="text-3xl font-serif font-bold text-midnight mb-4">
-              Welcome Back
+            <h1 className="text-3xl font-serif font-bold text-neutralBlack mb-4">
+              Member Login
             </h1>
             <p className="text-gray-600">
-              Sign in to access your wholesale portal and manage your orders.
+              Sign in to access your wholesale account and manage your orders.
             </p>
           </div>
 
           <div className="bg-white rounded-xl p-8 shadow-elevation">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-midnight mb-2">Email Address</label>
+                <label className="block text-sm font-medium text-neutralBlack mb-2">Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal focus:border-transparent"
+                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
                     placeholder="your@email.com"
                     required
                   />
@@ -61,14 +60,14 @@ export default function Login() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-midnight mb-2">Password</label>
+                <label className="block text-sm font-medium text-neutralBlack mb-2">Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal focus:border-transparent"
+                    className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
                     placeholder="Enter your password"
                     required
                   />
@@ -86,12 +85,12 @@ export default function Login() {
                 <label className="flex items-center">
                   <input
                     type="checkbox"
-                    className="rounded border-gray-300 text-teal focus:ring-teal"
+                    className="rounded border-gray-300 text-primaryBlue focus:ring-primaryBlue"
                   />
                   <span className="ml-2 text-sm text-gray-600">Remember me</span>
                 </label>
-                <a href="#" className="text-sm text-teal hover:text-midnight transition-colors">
-                  Forgot password?
+                <a href="#" className="text-sm text-primaryBlue hover:text-neutralBlack transition-colors">
+                  Forgot your password?
                 </a>
               </div>
 
@@ -116,23 +115,23 @@ export default function Login() {
 
             <div className="mt-8 pt-6 border-t border-gray-200">
               <div className="text-center">
-                <p className="text-gray-600 mb-4">Don't have an account?</p>
+                <p className="text-gray-600 mb-4">Don't have a member account?</p>
                 <Link to="/contact" className="btn-outline w-full">
-                  Request Access
+                  Request Membership
                 </Link>
               </div>
             </div>
           </div>
 
           <div className="mt-8 text-center">
-            <div className="bg-teal/10 border border-teal/20 rounded-lg p-4">
-              <h3 className="font-semibold text-midnight mb-2">New Customer?</h3>
+            <div className="bg-primaryBlue/10 border border-primaryBlue/20 rounded-lg p-4">
+              <h3 className="font-semibold text-neutralBlack mb-2">New to Choice Foods?</h3>
               <p className="text-sm text-gray-600 mb-3">
-                This portal is for existing wholesale customers. To become a retailer partner, 
-                please contact our sales team.
+                This member portal is for existing wholesale customers. To become a customer and access our premium Mediterranean products, 
+                please contact our team.
               </p>
-              <Link to="/contact" className="text-teal font-medium hover:text-midnight transition-colors">
-                Contact Sales Team →
+              <Link to="/contact" className="text-primaryBlue font-medium hover:text-neutralBlack transition-colors">
+                Contact us today
               </Link>
             </div>
           </div>
@@ -140,9 +139,9 @@ export default function Login() {
           <div className="mt-8 text-center text-sm text-gray-500">
             <p>
               By signing in, you agree to our{" "}
-              <a href="#" className="text-teal hover:text-midnight transition-colors">Terms of Service</a>
+              <a href="#" className="text-primaryBlue hover:text-neutralBlack transition-colors">Terms of Service</a>
               {" "}and{" "}
-              <a href="#" className="text-teal hover:text-midnight transition-colors">Privacy Policy</a>
+              <a href="#" className="text-primaryBlue hover:text-neutralBlack transition-colors">Privacy Policy</a>
             </p>
           </div>
         </div>

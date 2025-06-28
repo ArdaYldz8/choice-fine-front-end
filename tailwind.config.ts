@@ -26,11 +26,15 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: '#021431',
+					DEFAULT: '#2A4D7F',
+					600: '#1e3a63',
+					700: '#1a3156',
 					foreground: '#FFFFFF'
 				},
 				secondary: {
-					DEFAULT: '#046C8C',
+					DEFAULT: '#E63946',
+					500: '#E63946',
+					600: '#d63344',
 					foreground: '#FFFFFF'
 				},
 				destructive: {
@@ -38,11 +42,13 @@ export default {
 					foreground: 'hsl(var(--destructive-foreground))'
 				},
 				muted: {
-					DEFAULT: '#F4F7F8',
-					foreground: '#021431'
+					DEFAULT: '#F5F6F7',
+					foreground: '#000000'
 				},
 				accent: {
-					DEFAULT: '#7AB55C',
+					DEFAULT: '#E63946',
+					500: '#E63946',
+					600: '#d63344',
 					foreground: '#FFFFFF'
 				},
 				popover: {
@@ -63,11 +69,11 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				'midnight': '#021431',
-				'teal': '#046C8C',
-				'olive': '#7AB55C',
-				'saffron': '#F6BE2C',
-				'soft-bg': '#F4F7F8'
+				// Choice Fine Foods Brand Colors
+				'primaryBlue': '#2A4D7F',
+				'accentRed': '#E63946',
+				'neutralBlack': '#000000',
+				'lightGrey': '#F5F6F7'
 			},
 			fontFamily: {
 				'serif': ['Playfair Display', 'serif'],
