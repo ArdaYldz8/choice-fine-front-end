@@ -76,8 +76,20 @@ export default function Products() {
   const [loadingTimeout, setLoadingTimeout] = useState(false);
   const { addItem, openCart } = useCart();
   
-  // Use the real products hook
-  const { products, loading: productsLoading, error: productsError } = useProducts();
+  // Use the optimized products hook with filters
+  const { 
+    products, 
+    loading: productsLoading, 
+    error: productsError,
+    hasNextPage,
+    loadNextPage,
+    cacheStats
+  } = useProducts({
+    category: selectedCategory,
+    searchTerm,
+    pageSize: 30, // Optimized page size for virtual scrolling
+    enabled: !!profile?.approved // Only fetch if user is approved
+  });
 
   // Add timeout for products loading
   useEffect(() => {
@@ -229,14 +241,8 @@ export default function Products() {
     );
   }
 
-  // Filter products based on search and category
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (product.description?.toLowerCase() || '').includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "All Categories" || product.category === selectedCategory;
-    
-    return matchesSearch && matchesCategory;
-  });
+  // Products are now pre-filtered by the optimized hook
+  const filteredProducts = products;
 
   const handleAddToCart = (product: Product) => {
     addItem({
@@ -432,7 +438,19 @@ export default function Products() {
               </div>
             )}
 
-            {filteredProducts.length === 0 && (
+            {/* Load More Button for Virtual Scrolling */}
+            {hasNextPage && !productsLoading && (
+              <div className="text-center py-8">
+                <button
+                  onClick={loadNextPage}
+                  className="btn-outline"
+                >
+                  Load More Products
+                </button>
+              </div>
+            )}
+
+            {filteredProducts.length === 0 && !productsLoading && (
               <div className="text-center py-16">
                 <div className="text-gray-400 mb-4">
                   <Search className="h-16 w-16 mx-auto" />
@@ -448,6 +466,14 @@ export default function Products() {
                 >
                   Clear All Filters
                 </button>
+              </div>
+            )}
+
+            {/* Performance Stats (development only) */}
+            {process.env.NODE_ENV === 'development' && cacheStats && (
+              <div className="mt-8 p-4 bg-gray-100 rounded-lg text-xs text-gray-600">
+                <strong>🚀 Performance Stats:</strong> Cache hits - Products: {cacheStats.products || 0}, 
+                Search: {cacheStats.searchResults || 0}
               </div>
             )}
           </div>

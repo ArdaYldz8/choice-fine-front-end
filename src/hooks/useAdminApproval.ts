@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { supabase, Profile } from '../lib/supabase'
 import { useToast } from './use-toast'
+import { cacheUtils, performanceMonitor, optimizeQuery } from '../lib/cache-utils'
 
 export interface UseAdminApprovalReturn {
   pendingUsers: Profile[]
@@ -8,6 +9,11 @@ export interface UseAdminApprovalReturn {
   error: string | null
   approveUser: (uid: string) => Promise<void>
   refreshPendingUsers: () => Promise<void>
+  stats: {
+    total: number
+    pending: number
+    approved: number
+  }
 }
 
 export const useAdminApproval = (): UseAdminApprovalReturn => {
@@ -16,122 +22,177 @@ export const useAdminApproval = (): UseAdminApprovalReturn => {
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
 
-  // Fetch pending users (onay bekleyen kullanıcıları getir)
-  const fetchPendingUsers = async () => {
-    try {
-      setIsLoading(true)
-      setError(null)
+  // Memoized cache key
+  const cacheKey = useMemo(() => 'pending_users_list', []);
 
-      const { data, error: fetchError } = await supabase
+  // Fetch pending users with caching (onay bekleyen kullanıcıları getir)
+  const fetchPendingUsers = useCallback(async (useCache = true) => {
+    try {
+      performanceMonitor.startTiming('fetchPendingUsers');
+      setIsLoading(true);
+      setError(null);
+
+      // Try cache first for instant loading
+      if (useCache) {
+        const cachedUsers = await cacheUtils.get<Profile[]>('profiles', cacheKey);
+        if (cachedUsers) {
+          console.log('📦 Pending users loaded from cache');
+          setPendingUsers(cachedUsers);
+          setIsLoading(false);
+          performanceMonitor.endTiming('fetchPendingUsers');
+          return;
+        }
+      }
+
+      // Optimized query - only fetch necessary fields
+      const query = supabase
         .from('profiles')
-        .select('*')
+        .select('id, full_name, email, approved, created_at, updated_at')
         .eq('approved', false)
         .order('created_at', { ascending: false })
+        .limit(100); // Reasonable limit for admin interface
+
+      const { data, error: fetchError } = await query;
 
       if (fetchError) {
-        throw fetchError
+        throw fetchError;
       }
 
-      setPendingUsers(data || [])
+      const users = data || [];
+      setPendingUsers(users);
+
+      // Cache the results
+      await cacheUtils.set('profiles', cacheKey, users);
+      
+      console.log(`✅ Fetched ${users.length} pending users from database`);
+      performanceMonitor.endTiming('fetchPendingUsers');
+
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
-      setError(errorMessage)
-      console.error('Error fetching pending users:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      setError(errorMessage);
+      console.error('Error fetching pending users:', err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  }, [cacheKey]);
 
-  // Approve user via Edge Function (Edge Function ile kullanıcı onaylama)
-  const approveUser = async (uid: string) => {
+  // Approve user with optimistic updates
+  const approveUser = useCallback(async (uid: string) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession()
+      performanceMonitor.startTiming('approveUser');
       
-      if (!session?.access_token) {
-        throw new Error('Not authenticated')
+      // Find the user for optimistic update
+      const userToApprove = pendingUsers.find(user => user.id === uid);
+      if (!userToApprove) {
+        throw new Error('User not found');
       }
 
-      // Call Edge Function
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/approve-user`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify({ uid })
-      })
+      // Optimistic update - remove from pending list immediately
+      setPendingUsers(prev => prev.filter(user => user.id !== uid));
 
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to approve user')
-      }
-
-      // Remove approved user from pending list
-      setPendingUsers(prev => prev.filter(user => user.id !== uid))
-      
-      toast({
-        title: "Kullanıcı Onaylandı",
-        description: "Kullanıcı başarıyla onaylandı.",
-      })
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
-      setError(errorMessage)
-      toast({
-        title: "Hata",
-        description: errorMessage,
-        variant: "destructive",
-      })
-      console.error('Error approving user:', err)
-    }
-  }
-
-  // Alternative: Direct database update (Alternatif: Doğrudan veritabanı güncellemesi)
-  const approveUserDirect = async (uid: string) => {
-    try {
+      // Perform the actual database update
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ 
           approved: true,
           updated_at: new Date().toISOString()
         })
-        .eq('id', uid)
+        .eq('id', uid);
 
       if (updateError) {
-        throw updateError
+        // Revert optimistic update on error
+        setPendingUsers(prev => [userToApprove, ...prev]);
+        throw updateError;
       }
 
-      // Remove approved user from pending list
-      setPendingUsers(prev => prev.filter(user => user.id !== uid))
+      // Clear cache to ensure fresh data on next fetch
+      cacheUtils.clear('profiles');
       
       toast({
         title: "Kullanıcı Onaylandı",
-        description: "Kullanıcı başarıyla onaylandı.",
-      })
+        description: `${userToApprove.full_name} başarıyla onaylandı.`,
+      });
+
+      performanceMonitor.endTiming('approveUser');
+
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
-      setError(errorMessage)
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      setError(errorMessage);
       toast({
         title: "Hata",
         description: errorMessage,
         variant: "destructive",
-      })
-      console.error('Error approving user:', err)
+      });
+      console.error('Error approving user:', err);
     }
-  }
+  }, [pendingUsers, toast]);
+
+  // Batch approve users for efficiency
+  const batchApproveUsers = useCallback(async (uids: string[]) => {
+    try {
+      performanceMonitor.startTiming('batchApproveUsers');
+      
+      // Optimistic update
+      const usersToApprove = pendingUsers.filter(user => uids.includes(user.id));
+      setPendingUsers(prev => prev.filter(user => !uids.includes(user.id)));
+
+      // Batch update
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ 
+          approved: true,
+          updated_at: new Date().toISOString()
+        })
+        .in('id', uids);
+
+      if (updateError) {
+        // Revert on error
+        setPendingUsers(prev => [...usersToApprove, ...prev]);
+        throw updateError;
+      }
+
+      // Clear cache
+      cacheUtils.clear('profiles');
+      
+      toast({
+        title: "Toplu Onay Başarılı",
+        description: `${uids.length} kullanıcı başarıyla onaylandı.`,
+      });
+
+      performanceMonitor.endTiming('batchApproveUsers');
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Batch approval failed';
+      setError(errorMessage);
+      toast({
+        title: "Toplu Onay Hatası",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  }, [pendingUsers, toast]);
 
   // Refresh pending users list
-  const refreshPendingUsers = async () => {
-    await fetchPendingUsers()
-  }
+  const refreshPendingUsers = useCallback(async () => {
+    await fetchPendingUsers(false); // Force refresh without cache
+  }, [fetchPendingUsers]);
 
-  // Subscribe to real-time updates (gerçek zamanlı güncellemeler)
+  // Get user statistics
+  const stats = useMemo(() => {
+    return {
+      total: pendingUsers.length,
+      pending: pendingUsers.filter(user => !user.approved).length,
+      approved: pendingUsers.filter(user => user.approved).length,
+    };
+  }, [pendingUsers]);
+
+  // Real-time subscription with debouncing
   useEffect(() => {
-    fetchPendingUsers()
+    fetchPendingUsers();
 
-    // Set up real-time subscription
+    // Set up real-time subscription with performance optimization
     const subscription = supabase
-      .channel('profiles_changes')
+      .channel('profiles_admin_changes')
       .on('postgres_changes', 
         { 
           event: '*', 
@@ -140,22 +201,29 @@ export const useAdminApproval = (): UseAdminApprovalReturn => {
           filter: 'approved=eq.false'
         }, 
         (payload) => {
-          console.log('Real-time update:', payload)
-          fetchPendingUsers() // Refresh the list
+          console.log('Real-time admin update:', payload.eventType);
+          
+          // Debounced refresh to avoid excessive updates
+          const debouncedRefresh = setTimeout(() => {
+            fetchPendingUsers(false);
+          }, 1000);
+
+          return () => clearTimeout(debouncedRefresh);
         }
       )
-      .subscribe()
+      .subscribe();
 
     return () => {
-      subscription.unsubscribe()
-    }
-  }, [])
+      subscription.unsubscribe();
+    };
+  }, [fetchPendingUsers]);
 
   return {
     pendingUsers,
     isLoading,
     error,
-    approveUser: approveUserDirect, // Uses Direct Database Update (Edge Function yerine)
-    refreshPendingUsers
-  }
-} 
+    approveUser,
+    refreshPendingUsers,
+    stats
+  };
+}; 

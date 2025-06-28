@@ -22,18 +22,22 @@ const Admin: React.FC = () => {
     isLoading, 
     error, 
     approveUser, 
-    refreshPendingUsers 
+    refreshPendingUsers,
+    stats: userStats
   } = useAdminApproval()
 
   const { 
     orders, 
     loading: ordersLoading, 
     error: ordersError, 
-    updateOrderStatus, 
-    getOrderStats 
-  } = useOrders()
-
-  const orderStats = getOrderStats()
+    updateOrderStatus,
+    orderStats,
+    hasNextPage: ordersHasNextPage,
+    loadNextPage: loadMoreOrders,
+    cacheStats
+  } = useOrders({
+    pageSize: 20 // Optimized page size for admin interface
+  })
 
   // Check admin authorization (yönetici yetkisi kontrolü)
   useEffect(() => {
@@ -380,12 +384,41 @@ const Admin: React.FC = () => {
                       </div>
                     </div>
                   ))}
+                  
+                  {/* Load More Orders */}
+                  {ordersHasNextPage && !ordersLoading && (
+                    <div className="text-center pt-4">
+                      <Button 
+                        onClick={loadMoreOrders}
+                        variant="outline"
+                        size="sm"
+                      >
+                        Load More Orders
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Performance Stats (development only) */}
+      {process.env.NODE_ENV === 'development' && cacheStats && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">🚀 Performance Stats</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-xs text-gray-600 space-y-1">
+              <div>Cache hits - Orders: {cacheStats.orders || 0}</div>
+              <div>Cache hits - Profiles: {cacheStats.profiles || 0}</div>
+              <div>Cache hits - Products: {cacheStats.products || 0}</div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

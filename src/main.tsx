@@ -2,7 +2,10 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { clearAuthCache } from './lib/supabase'
-import { setupCacheManagement, clearAllCaches } from './lib/cache-utils'
+import { setupCacheManagement, clearAllCaches, initializeCacheSystem } from './lib/cache-utils'
+
+// Initialize advanced caching system for 2025 performance optimizations
+initializeCacheSystem();
 
 // Setup cache management
 setupCacheManagement();

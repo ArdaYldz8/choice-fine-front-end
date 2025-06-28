@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { supabase, type Product } from '../lib/supabase'
+import { cacheUtils, optimizeQuery, performanceMonitor } from '../lib/cache-utils'
 
 // Mock products as fallback when real data isn't available
 const mockProducts: Product[] = [
@@ -41,110 +42,188 @@ const mockProducts: Product[] = [
   }
 ];
 
-export function useProducts() {
+// Optimized product fetching with pagination and caching
+export function useProducts(options: {
+  pageSize?: number;
+  category?: string;
+  searchTerm?: string;
+  sortBy?: string;
+  enabled?: boolean;
+} = {}) {
+  const {
+    pageSize = 50, // Virtual scrolling-friendly page size
+    category,
+    searchTerm,
+    sortBy = 'name',
+    enabled = true
+  } = options;
+
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [usingMockData, setUsingMockData] = useState(false)
+  const [hasNextPage, setHasNextPage] = useState(false)
+  const [currentPage, setCurrentPage] = useState(0)
 
-  useEffect(() => {
-    fetchProducts()
-  }, [])
+  // Generate cache key based on filters
+  const cacheKey = useMemo(() => {
+    const filters = { category, searchTerm, sortBy, page: currentPage, pageSize };
+    return `products_${JSON.stringify(filters)}`;
+  }, [category, searchTerm, sortBy, currentPage, pageSize]);
 
-  const fetchProducts = async () => {
+  // Optimized fetch function with caching
+  const fetchProducts = useCallback(async (page = 0, append = false) => {
+    if (!enabled) return;
+
     try {
-      console.log('Fetching products from Supabase...')
-      setLoading(true)
-      setError(null)
-      setUsingMockData(false)
+      performanceMonitor.startTiming('fetchProducts');
       
-      // Increase timeout to 20 seconds for slow connections
+      if (!append) {
+        setLoading(true);
+        setError(null);
+      }
+      
+      // Try cache first for fast loading
+      const cacheResult = await cacheUtils.get<Product[]>('products', cacheKey);
+      if (cacheResult && !append) {
+        console.log('📦 Products loaded from cache');
+        setProducts(cacheResult);
+        setLoading(false);
+        performanceMonitor.endTiming('fetchProducts');
+        return;
+      }
+
+      setUsingMockData(false);
+      
+      // Build optimized query - start with basic query first
+      let query = supabase
+        .from('products')
+        .select('id, name, description, price, category, sku, active, quantity_on_hand')
+        .eq('active', true);
+
+      // Add category filter
+      if (category && category !== 'All Categories') {
+        query = query.eq('category', category);
+      }
+
+      // Add pagination and ordering
+      query = query
+        .order(sortBy)
+        .range(page * pageSize, (page + 1) * pageSize - 1);
+
+      // Execute query with timeout
+      const queryPromise = query;
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout - products table might not exist or is very large')), 20000);
+        setTimeout(() => reject(new Error('Query timeout - database might be slow')), 15000);
       });
 
-      // First, let's check if the table exists
-      const tableCheckPromise = supabase
-        .from('products')
-        .select('count', { count: 'exact', head: true });
+      const { data, error: queryError } = await Promise.race([queryPromise, timeoutPromise]) as any;
 
-      console.log('Checking if products table exists...')
-      const { count, error: countError } = await Promise.race([tableCheckPromise, timeoutPromise]) as any;
+      if (queryError) {
+        console.error('Supabase error:', queryError);
+        throw queryError;
+      }
       
-      if (countError) {
-        console.error('Table check error:', countError)
-        throw countError
-      }
-
-      console.log(`Products table exists with ${count} records`)
-
-      // If table exists, fetch the actual data
-      if (count !== null) {
-        console.log('Fetching product data...')
-        const apiPromise = supabase
-          .from('products')
-          .select('*')
-          .eq('active', true)
-          .order('name'); // Load all products
-
-        const { data, error } = await Promise.race([apiPromise, timeoutPromise]) as any;
-
-        console.log('Supabase response:', { dataLength: data?.length, error })
-
-        if (error) {
-          console.error('Supabase error:', error)
-          throw error
-        }
-        
-        console.log(`Successfully fetched ${data?.length || 0} products`)
-        setProducts(data || [])
+      console.log(`✅ Fetched ${data?.length || 0} products from database`);
+      
+      const newProducts = data || [];
+      
+      // Update state
+      if (append) {
+        setProducts(prev => [...prev, ...newProducts]);
       } else {
-        throw new Error('Products table appears to be empty')
+        setProducts(newProducts);
+        // Cache the results
+        await cacheUtils.set('products', cacheKey, newProducts);
       }
+      
+      // Check if there are more pages
+      setHasNextPage(newProducts.length === pageSize);
+      
+      performanceMonitor.endTiming('fetchProducts');
+      
     } catch (err) {
-      console.error('Error in fetchProducts:', err)
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred'
+      console.error('Error in fetchProducts:', err);
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
       
       // Use mock data for various error conditions
       if (errorMessage.includes('relation "products" does not exist') || 
           errorMessage.includes('timeout') ||
-          errorMessage.includes('Request timeout') ||
-          errorMessage.includes('table appears to be empty') ||
+          errorMessage.includes('Query timeout') ||
           errorMessage.includes('JWT') ||
           errorMessage.includes('permission')) {
-        console.log('📦 Using mock product data as fallback')
-        console.log('Reason:', errorMessage)
-        setProducts(mockProducts)
-        setUsingMockData(true)
-        setError(`Using sample data: ${errorMessage}`)
+        console.log('📦 Using mock product data as fallback');
+        setProducts(mockProducts);
+        setUsingMockData(true);
+        setError(`Using sample data: ${errorMessage}`);
       } else {
-        setError(errorMessage)
+        setError(errorMessage);
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  }, [enabled, cacheKey, pageSize, category, searchTerm, sortBy]);
 
-  const addProduct = async (product: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
+  // Load next page for virtual scrolling
+  const loadNextPage = useCallback(async () => {
+    if (!hasNextPage || loading) return;
+    
+    setCurrentPage(prev => {
+      const nextPage = prev + 1;
+      fetchProducts(nextPage, true);
+      return nextPage;
+    });
+  }, [hasNextPage, loading, fetchProducts]);
+
+  // Reset and refetch
+  const refetch = useCallback(() => {
+    setCurrentPage(0);
+    setProducts([]);
+    fetchProducts(0, false);
+  }, [fetchProducts]);
+
+  // Initial load and dependency updates
+  useEffect(() => {
+    setCurrentPage(0);
+    setProducts([]);
+    fetchProducts(0, false);
+  }, [category, searchTerm, sortBy, enabled]);
+
+  // Memoized filtered products for search
+  const filteredProducts = useMemo(() => {
+    if (!searchTerm) return products;
+    
+    return products.filter(product => 
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (product.description?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    );
+  }, [products, searchTerm]);
+
+  // CRUD operations with cache invalidation
+  const addProduct = useCallback(async (product: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       const { data, error } = await supabase
         .from('products')
         .insert([product])
         .select()
 
-      if (error) throw error
+      if (error) throw error;
+      
       if (data) {
-        setProducts(prev => [...prev, ...data])
+        setProducts(prev => [data[0], ...prev]);
+        // Invalidate cache
+        cacheUtils.clear('products');
       }
-      return { success: true, data }
+      
+      return { success: true, data };
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to add product'
-      setError(message)
-      return { success: false, error: message }
+      const message = err instanceof Error ? err.message : 'Failed to add product';
+      setError(message);
+      return { success: false, error: message };
     }
-  }
+  }, []);
 
-  const updateProduct = async (id: string, updates: Partial<Product>) => {
+  const updateProduct = useCallback(async (id: string, updates: Partial<Product>) => {
     try {
       const { data, error } = await supabase
         .from('products')
@@ -152,43 +231,57 @@ export function useProducts() {
         .eq('id', id)
         .select()
 
-      if (error) throw error
+      if (error) throw error;
+      
       if (data) {
-        setProducts(prev => prev.map(p => p.id === id ? data[0] : p))
+        setProducts(prev => prev.map(p => p.id === id ? data[0] : p));
+        // Invalidate cache
+        cacheUtils.clear('products');
       }
-      return { success: true, data }
+      
+      return { success: true, data };
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to update product'
-      setError(message)
-      return { success: false, error: message }
+      const message = err instanceof Error ? err.message : 'Failed to update product';
+      setError(message);
+      return { success: false, error: message };
     }
-  }
+  }, []);
 
-  const deleteProduct = async (id: string) => {
+  const deleteProduct = useCallback(async (id: string) => {
     try {
       const { error } = await supabase
         .from('products')
         .update({ active: false })
         .eq('id', id)
 
-      if (error) throw error
-      setProducts(prev => prev.filter(p => p.id !== id))
-      return { success: true }
+      if (error) throw error;
+      
+      setProducts(prev => prev.filter(p => p.id !== id));
+      // Invalidate cache
+      cacheUtils.clear('products');
+      
+      return { success: true };
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to delete product'
-      setError(message)
-      return { success: false, error: message }
+      const message = err instanceof Error ? err.message : 'Failed to delete product';
+      setError(message);
+      return { success: false, error: message };
     }
-  }
+  }, []);
 
   return {
-    products,
+    products: filteredProducts,
+    allProducts: products, // For cases where you need unfiltered data
     loading,
     error,
     usingMockData,
-    fetchProducts,
+    hasNextPage,
+    currentPage,
+    refetch,
+    loadNextPage,
     addProduct,
     updateProduct,
-    deleteProduct
-  }
+    deleteProduct,
+    // Performance stats
+    cacheStats: cacheUtils.getStats()
+  };
 } 
