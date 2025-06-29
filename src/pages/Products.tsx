@@ -4,6 +4,10 @@ import { Search, Filter, Grid, List, Lock, ShoppingCart, Plus } from "lucide-rea
 import { supabase, getCurrentUserProfile, type Product } from "../lib/supabase";
 import { useCart } from "../contexts/CartContext";
 import { useProducts } from "../hooks/useProducts";
+import ProfessionalHero from "../components/ProfessionalHero";
+import CategoryShowcase from "../components/CategoryShowcase";
+import EnhancedProductCard from "../components/EnhancedProductCard";
+import QuickViewModal from "../components/QuickViewModal";
 
 // Real categories from our product data
 const categories = [
@@ -74,7 +78,9 @@ export default function Products() {
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
-  const { addItem, openCart } = useCart();
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const { addItem, addItemWithQuantity, openCart } = useCart();
   
   // Use the optimized products hook with filters
   const { 
@@ -244,32 +250,51 @@ export default function Products() {
   // Products are now pre-filtered by the optimized hook
   const filteredProducts = products;
 
-  const handleAddToCart = (product: Product) => {
-    addItem({
+  const handleAddToCart = (product: Product, quantity: number = 1) => {
+    const cartItem = {
       id: product.id,
       name: product.name,
       description: product.description || '',
       category: product.category || '',
       price: product.price,
       sku: product.sku,
-      quickbooks_id: product.quickbooks_id
-    });
+      quickbooks_id: product.quickbooks_id,
+      image: getCategoryImage(product.category || ''),
+      tags: [product.category || 'Product'],
+      packSize: 'Unit', // Using default since pack_size doesn't exist in Product type
+      country: 'Mediterranean' // Using default since country doesn't exist in Product type
+    };
+
+    if (quantity === 1) {
+      addItem(cartItem);
+    } else {
+      addItemWithQuantity(cartItem, quantity);
+    }
+    
     openCart();
   };
 
+  const handleQuickView = (product: Product) => {
+    setQuickViewProduct(product);
+    setIsQuickViewOpen(true);
+  };
+
+  const handleCloseQuickView = () => {
+    setIsQuickViewOpen(false);
+    setQuickViewProduct(null);
+  };
+
   return (
-    <div className="min-h-screen bg-lightGrey">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="container-custom py-8">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-neutralBlack mb-4">
-            Our Product Catalog
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl">
-            Choice Foods supplies our clients with the best and freshest products in the market. 
-            Discover our wide variety of premium Mediterranean & specialty products from trusted producers worldwide.
-          </p>
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Professional Hero Section */}
+      <ProfessionalHero />
+
+      {/* Category Showcase */}
+      <div className="container-custom py-12">
+        <CategoryShowcase 
+          onCategorySelect={setSelectedCategory}
+          selectedCategory={selectedCategory}
+        />
       </div>
 
       <div className="container-custom py-8">
@@ -357,83 +382,29 @@ export default function Products() {
               </div>
             </div>
 
-            {/* Products */}
+            {/* Enhanced Products with Professional Cards */}
             {viewMode === "grid" ? (
-              <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
                 {filteredProducts.map((product) => (
-                  <div key={product.id} className="card-elevation overflow-hidden">
-                    <div className="aspect-square relative">
-                      <img
-                        src={getCategoryImage(product.category || '')}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute top-4 right-4 bg-white/90 px-2 py-1 rounded text-xs font-medium text-neutralBlack">
-                        {product.category}
-                      </div>
-                    </div>
-                    <div className="p-6">
-                      <h3 className="font-serif font-bold text-lg text-neutralBlack mb-2">{product.name}</h3>
-                      <p className="text-gray-600 mb-3 text-sm">{product.description}</p>
-                      <div className="flex justify-between items-center">
-                        <div className="text-sm text-gray-500">
-                          {product.sku && <span>SKU: {product.sku}</span>}
-                          {product.price && (
-                            <div className="font-medium text-primaryBlue">
-                              ${product.price.toFixed(2)}
-                            </div>
-                          )}
-                        </div>
-                        <button 
-                          onClick={() => handleAddToCart(product)}
-                          className="btn-primary text-sm px-4 py-2 flex items-center space-x-2"
-                        >
-                          <Plus className="h-4 w-4" />
-                          <span>Add to Cart</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <EnhancedProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={handleAddToCart}
+                    onQuickView={handleQuickView}
+                    viewMode="grid"
+                  />
                 ))}
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {filteredProducts.map((product) => (
-                  <div key={product.id} className="card-elevation p-6">
-                    <div className="flex flex-col md:flex-row gap-6">
-                      <div className="w-full md:w-48 aspect-square md:aspect-auto">
-                        <img
-                          src={getCategoryImage(product.category || '')}
-                          alt={product.name}
-                          className="w-full h-full object-cover rounded-lg"
-                        />
-                      </div>
-                      <div className="flex-1 space-y-3">
-                        <div className="flex items-start justify-between">
-                          <h3 className="font-serif font-bold text-xl text-neutralBlack">{product.name}</h3>
-                        </div>
-                        <p className="text-gray-600">{product.description}</p>
-                        <div className="flex items-center justify-between pt-2">
-                          <div className="text-sm text-gray-500">
-                            <span className="font-medium">{product.category}</span>
-                            {product.sku && <span> • SKU: {product.sku}</span>}
-                            {product.price && (
-                              <div className="font-medium text-primaryBlue text-lg mt-1">
-                                ${product.price.toFixed(2)}
-                              </div>
-                            )}
-                          </div>
-                          <button 
-                            onClick={() => handleAddToCart(product)}
-                            className="btn-primary flex items-center space-x-2"
-                          >
-                            <Plus className="h-4 w-4" />
-                            <span>Add to Cart</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <EnhancedProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={handleAddToCart}
+                    onQuickView={handleQuickView}
+                    viewMode="list"
+                  />
                 ))}
               </div>
             )}
@@ -479,6 +450,14 @@ export default function Products() {
           </div>
         </div>
       </div>
+
+      {/* Quick View Modal */}
+      <QuickViewModal
+        product={quickViewProduct}
+        isOpen={isQuickViewOpen}
+        onClose={handleCloseQuickView}
+        onAddToCart={handleAddToCart}
+      />
     </div>
   );
 }

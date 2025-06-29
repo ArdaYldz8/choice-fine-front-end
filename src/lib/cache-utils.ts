@@ -221,13 +221,14 @@ class IndexedDBCache {
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
         
-        // Create object stores
-        if (!db.objectStoreNames.contains('products')) {
-          db.createObjectStore('products', { keyPath: 'key' });
-        }
-        if (!db.objectStoreNames.contains('metadata')) {
-          db.createObjectStore('metadata', { keyPath: 'key' });
-        }
+        // Create all necessary object stores
+        const stores = ['products', 'profiles', 'orders', 'userSession', 'searchResults', 'metadata'];
+        
+        stores.forEach(storeName => {
+          if (!db.objectStoreNames.contains(storeName)) {
+            db.createObjectStore(storeName, { keyPath: 'key' });
+          }
+        });
       };
     });
   }

@@ -36,6 +36,7 @@ interface CartState {
 
 type CartAction =
   | { type: 'ADD_ITEM'; payload: Omit<CartItem, 'quantity'> }
+  | { type: 'ADD_ITEM_WITH_QUANTITY'; payload: Omit<CartItem, 'quantity'> & { quantity: number } }
   | { type: 'REMOVE_ITEM'; payload: string }
   | { type: 'UPDATE_QUANTITY'; payload: { id: string; quantity: number } }
   | { type: 'CLEAR_CART' }
@@ -68,6 +69,31 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         };
       } else {
         const newItems = [...state.items, { ...action.payload, quantity: 1 }];
+        return {
+          ...state,
+          items: newItems,
+          totalItems: newItems.reduce((sum, item) => sum + item.quantity, 0),
+        };
+      }
+    }
+
+    case 'ADD_ITEM_WITH_QUANTITY': {
+      const { quantity, ...itemData } = action.payload;
+      const existingItem = state.items.find(item => item.id === itemData.id);
+      
+      if (existingItem) {
+        const updatedItems = state.items.map(item =>
+          item.id === itemData.id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+        return {
+          ...state,
+          items: updatedItems,
+          totalItems: updatedItems.reduce((sum, item) => sum + item.quantity, 0),
+        };
+      } else {
+        const newItems = [...state.items, { ...itemData, quantity }];
         return {
           ...state,
           items: newItems,
@@ -147,6 +173,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 interface CartContextType {
   state: CartState;
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
+  addItemWithQuantity: (item: Omit<CartItem, 'quantity'>, quantity: number) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -181,6 +208,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addItem = (item: Omit<CartItem, 'quantity'>) => {
     dispatch({ type: 'ADD_ITEM', payload: item });
+  };
+
+  const addItemWithQuantity = (item: Omit<CartItem, 'quantity'>, quantity: number) => {
+    dispatch({ type: 'ADD_ITEM_WITH_QUANTITY', payload: { ...item, quantity } });
   };
 
   const removeItem = (id: string) => {
@@ -253,6 +284,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       value={{
         state,
         addItem,
+        addItemWithQuantity,
         removeItem,
         updateQuantity,
         clearCart,

@@ -71,7 +71,7 @@ export function ShoppingCart() {
                   <div key={item.id} className="bg-gray-50 rounded-lg p-4">
                     <div className="flex items-start space-x-3">
                       <img
-                        src={item.image}
+                        src={item.image || 'https://images.unsplash.com/photo-1556909114-4f0f33e6a3c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
                         alt={item.name}
                         className="w-16 h-16 object-cover rounded-lg"
                       />
@@ -79,11 +79,11 @@ export function ShoppingCart() {
                         <h4 className="font-medium text-neutralBlack truncate">
                           {item.name}
                         </h4>
-                        <p className="text-sm text-gray-500">{item.packSize}</p>
+                        <p className="text-sm text-gray-500">{item.packSize || 'Unit'}</p>
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {item.tags.slice(0, 2).map((tag) => (
+                          {(item.tags || []).slice(0, 2).map((tag, index) => (
                             <span
-                              key={tag}
+                              key={`${tag}-${index}`}
                               className="bg-primaryBlue text-white text-xs px-2 py-1 rounded-full"
                             >
                               {tag}
@@ -120,7 +120,7 @@ export function ShoppingCart() {
                         </button>
                       </div>
                       <span className="text-sm text-gray-500">
-                        {item.quantity} × {item.packSize}
+                        {item.quantity} × {item.packSize || 'Unit'}
                       </span>
                     </div>
                   </div>
