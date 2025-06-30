@@ -392,14 +392,14 @@ export function Header() {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden mt-4 py-4 border-t border-gray-200/50 bg-white/80 backdrop-blur-md rounded-lg mx-4">
-            <div className="space-y-4">
+          <div className="lg:hidden mt-4 py-4 border-t border-gray-200/50 bg-white/90 backdrop-blur-md rounded-lg shadow-lg">
+            <div className="space-y-3 px-4">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "block px-3 py-2 rounded-lg font-medium transition-colors",
+                    "block px-4 py-3 rounded-lg font-medium transition-colors text-base",
                     isActive(item.href) ? "text-primaryBlue bg-lightGrey" : "text-neutralBlack hover:text-primaryBlue hover:bg-lightGrey"
                   )}
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -413,7 +413,7 @@ export function Header() {
                 <Link
                   to="/products"
                   className={cn(
-                    "block px-3 py-2 rounded-lg font-medium transition-colors",
+                    "block px-4 py-3 rounded-lg font-medium transition-colors text-base",
                     isActive("/products") ? "text-primaryBlue bg-lightGrey" : "text-neutralBlack hover:text-primaryBlue hover:bg-lightGrey"
                   )}
                   onClick={() => setIsMobileMenuOpen(false)}

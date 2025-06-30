@@ -78,7 +78,7 @@ export default function Index() {
             <img 
               src="/logo.png" 
               alt="Choice Foods Logo" 
-              className="h-96 w-auto object-contain filter brightness-110 drop-shadow-2xl"
+              className="h-48 sm:h-64 md:h-80 lg:h-96 w-auto object-contain filter brightness-110 drop-shadow-2xl"
             />
           </div>
 
@@ -150,7 +150,7 @@ export default function Index() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
             <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
               <div className="h-48 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" }}>
                 <div className="h-full bg-gradient-to-t from-black/60 to-transparent flex items-end">

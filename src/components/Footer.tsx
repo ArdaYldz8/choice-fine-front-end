@@ -10,8 +10,8 @@ export function Footer() {
         <div className="absolute bottom-10 right-10 w-80 h-80 bg-accentRed rounded-full blur-3xl"></div>
       </div>
       
-      <div className="relative container-custom py-20">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div className="relative container-custom py-12 sm:py-16 lg:py-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
           {/* Company Info */}
           <div className="space-y-6">
             <div className="flex items-center space-x-4">
