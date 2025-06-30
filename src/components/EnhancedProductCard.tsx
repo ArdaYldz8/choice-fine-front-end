@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Heart, Eye, MapPin, Shield, Star, Package } from 'lucide-react';
 import { type Product } from '../lib/supabase';
+import { getProductImageUrl, getCategoryPlaceholder } from '../lib/image-utils';
 
 interface EnhancedProductCardProps {
   product: Product;
@@ -66,9 +67,25 @@ export default function EnhancedProductCard({
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showWholesale, setShowWholesale] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [productImageUrl, setProductImageUrl] = useState<string>(getCategoryPlaceholder(product.category || ''));
   
   const origin = getOriginInfo(product.category || '', product.name);
   const wholesaleTiers = product.price ? getWholesalePricing(product.price) : [];
+
+  // Load the actual product image
+  useEffect(() => {
+    const loadImage = async () => {
+      try {
+        const imageUrl = await getProductImageUrl(product.name, product.category || '', product.image_url);
+        setProductImageUrl(imageUrl);
+      } catch (error) {
+        console.error('Error loading product image:', error);
+        // Keep the placeholder image on error
+      }
+    };
+
+    loadImage();
+  }, [product.name, product.category, product.image_url]);
   
   const handleQuickView = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -93,9 +110,14 @@ export default function EnhancedProductCard({
         <div className="flex">
           <div className="w-48 h-48 relative overflow-hidden">
             <img
-              src={getEnhancedProductImage(product.category || '', product.name)}
+              src={productImageUrl}
               alt={product.name}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fallback to category placeholder on image load error
+                const target = e.target as HTMLImageElement;
+                target.src = getCategoryPlaceholder(product.category || '');
+              }}
             />
             <div className="absolute top-3 left-3 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium">
               {origin.flag} {origin.country}
@@ -222,9 +244,14 @@ export default function EnhancedProductCard({
     <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group">
       <div className="relative overflow-hidden">
         <img
-          src={getEnhancedProductImage(product.category || '', product.name)}
+          src={productImageUrl}
           alt={product.name}
           className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+          onError={(e) => {
+            // Fallback to category placeholder on image load error
+            const target = e.target as HTMLImageElement;
+            target.src = getCategoryPlaceholder(product.category || '');
+          }}
         />
         
         {/* Origin Badge */}

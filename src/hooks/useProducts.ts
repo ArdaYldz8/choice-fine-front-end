@@ -65,11 +65,11 @@ export function useProducts(options: {
   const [hasNextPage, setHasNextPage] = useState(false)
   const [currentPage, setCurrentPage] = useState(0)
 
-  // Generate cache key based on filters
+  // Generate cache key based on filters (exclude searchTerm for client-side filtering)
   const cacheKey = useMemo(() => {
-    const filters = { category, searchTerm, sortBy, page: currentPage, pageSize };
+    const filters = { category, sortBy, page: currentPage, pageSize };
     return `products_${JSON.stringify(filters)}`;
-  }, [category, searchTerm, sortBy, currentPage, pageSize]);
+  }, [category, sortBy, currentPage, pageSize]);
 
   // Optimized fetch function with caching
   const fetchProducts = useCallback(async (page = 0, append = false) => {
@@ -98,7 +98,7 @@ export function useProducts(options: {
       // Build optimized query - start with basic query first
       let query = supabase
         .from('products')
-        .select('id, name, description, price, category, sku, active, quantity_on_hand')
+        .select('id, name, description, price, category, sku, active, quantity_on_hand, image_url, created_at, updated_at')
         .eq('active', true);
 
       // Add category filter
@@ -162,7 +162,7 @@ export function useProducts(options: {
     } finally {
       setLoading(false);
     }
-  }, [enabled, cacheKey, pageSize, category, searchTerm, sortBy]);
+  }, [enabled, cacheKey, pageSize, category, sortBy]);
 
   // Load next page for virtual scrolling
   const loadNextPage = useCallback(async () => {
@@ -182,12 +182,12 @@ export function useProducts(options: {
     fetchProducts(0, false);
   }, [fetchProducts]);
 
-  // Initial load and dependency updates
+  // Initial load and dependency updates (exclude searchTerm to prevent API calls on every keystroke)
   useEffect(() => {
     setCurrentPage(0);
     setProducts([]);
     fetchProducts(0, false);
-  }, [category, searchTerm, sortBy, enabled]);
+  }, [category, sortBy, enabled]);
 
   // Memoized filtered products for search
   const filteredProducts = useMemo(() => {

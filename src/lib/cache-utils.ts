@@ -502,4 +502,44 @@ export const initializeCacheSystem = async () => {
   } catch (error) {
     console.warn('⚠️ Cache system initialization failed:', error);
   }
+};
+
+// Force clear all caches and reload page - for troubleshooting
+export const forceRefresh = async (): Promise<void> => {
+  try {
+    // Clear all memory caches
+    Object.values(caches).forEach(cache => cache.clear());
+    
+    // Clear persistent cache
+    await persistentCache.init();
+    const stores = ['products', 'profiles', 'orders', 'userSession', 'searchResults', 'metadata'];
+    
+    for (const store of stores) {
+      try {
+        // Clear IndexedDB store
+        const transaction = (persistentCache as any).db.transaction([store], 'readwrite');
+        const objectStore = transaction.objectStore(store);
+        await new Promise<void>((resolve, reject) => {
+          const request = objectStore.clear();
+          request.onsuccess = () => resolve();
+          request.onerror = () => reject(request.error);
+        });
+      } catch (error) {
+        console.warn(`Failed to clear ${store}:`, error);
+      }
+    }
+    
+    // Clear browser storage
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    console.log('🔄 All caches cleared, reloading...');
+    
+    // Force page refresh
+    window.location.reload();
+  } catch (error) {
+    console.error('Force refresh failed:', error);
+    // Fallback to regular reload
+    window.location.reload();
+  }
 }; 

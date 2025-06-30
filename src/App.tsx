@@ -9,6 +9,7 @@ import { CartProvider } from "./contexts/CartContext";
 import { ShoppingCart } from "./components/ShoppingCart";
 import Index from "./pages/Index";
 import Products from "./pages/Products";
+import Catalog from "./pages/Catalog";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
@@ -28,9 +29,10 @@ const App = () => (
         <BrowserRouter>
           <div className="min-h-screen flex flex-col">
             <Header />
-            <main className="flex-1">
+            <main className="flex-1 relative pt-24">
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/catalog" element={<Catalog />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/login" element={<Login />} />

@@ -29,6 +29,7 @@ export interface Product {
   sku?: string
   category?: string
   active: boolean
+  image_url?: string
   created_at: string
   updated_at: string
 }

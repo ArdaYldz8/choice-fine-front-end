@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
-import { Search, Filter, Grid, List, Lock, ShoppingCart, Plus } from "lucide-react";
+import { Search, Filter, Grid, List, Lock, ShoppingCart } from "lucide-react";
 import { supabase, getCurrentUserProfile, type Product } from "../lib/supabase";
 import { useCart } from "../contexts/CartContext";
 import { useProducts } from "../hooks/useProducts";
+import { useDebounce } from "../hooks/use-mobile";
 import ProfessionalHero from "../components/ProfessionalHero";
-import CategoryShowcase from "../components/CategoryShowcase";
 import EnhancedProductCard from "../components/EnhancedProductCard";
 import QuickViewModal from "../components/QuickViewModal";
 
@@ -70,45 +70,31 @@ const getCategoryImage = (category: string) => {
 };
 
 export default function Products() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [loadingTimeout, setLoadingTimeout] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const { addItem, addItemWithQuantity, openCart } = useCart();
+  
+  // Debounce search input to prevent API calls on every keystroke
+  const debouncedSearchTerm = useDebounce(searchInput, 500);
   
   // Use the optimized products hook with filters
   const { 
     products, 
     loading: productsLoading, 
-    error: productsError,
-    hasNextPage,
-    loadNextPage,
-    cacheStats
+    error: productsError
   } = useProducts({
     category: selectedCategory,
-    searchTerm,
-    pageSize: 30, // Optimized page size for virtual scrolling
-    enabled: !!profile?.approved // Only fetch if user is approved
+    searchTerm: debouncedSearchTerm,
+    pageSize: 30,
+    enabled: !!profile?.approved
   });
-
-  // Add timeout for products loading
-  useEffect(() => {
-    if (productsLoading) {
-      const timer = setTimeout(() => {
-        setLoadingTimeout(true);
-      }, 10000); // 10 second timeout
-
-      return () => clearTimeout(timer);
-    } else {
-      setLoadingTimeout(false);
-    }
-  }, [productsLoading]);
 
   // Check auth status
   useEffect(() => {
@@ -129,7 +115,6 @@ export default function Products() {
 
     checkAuth();
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
         setUser(session.user);
@@ -145,51 +130,13 @@ export default function Products() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Show loading timeout message
-  if (loadingTimeout && productsLoading) {
-    return (
-      <div className="min-h-screen bg-lightGrey flex items-center justify-center">
-        <div className="text-center max-w-lg mx-auto p-8">
-          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Search className="h-8 w-8 text-yellow-600" />
-          </div>
-          <h1 className="text-2xl font-serif font-bold text-neutralBlack mb-4">
-            Loading Taking Too Long
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Products are taking longer than expected to load. This might be because:
-          </p>
-          <ul className="text-left text-gray-600 mb-6 space-y-2">
-            <li>• Products table doesn't exist yet</li>
-            <li>• Migration needs to be run</li>
-            <li>• Supabase connection issue</li>
-          </ul>
-          <div className="space-y-3">
-            <button 
-              onClick={() => window.location.reload()}
-              className="btn-primary w-full"
-            >
-              Try Again
-            </button>
-            <p className="text-sm text-gray-500">
-              Check browser console for error details
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Show loading while checking auth or loading products
   if (isLoading || productsLoading) {
     return (
-      <div className="min-h-screen bg-lightGrey flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primaryBlue mx-auto mb-4"></div>
-          <p>Loading products...</p>
-          <p className="text-sm text-gray-500 mt-2">
-            {productsLoading ? 'Fetching product data...' : 'Checking authentication...'}
-          </p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primaryBlue mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading products...</p>
         </div>
       </div>
     );
@@ -198,17 +145,15 @@ export default function Products() {
   // Show error if products failed to load
   if (productsError) {
     return (
-      <div className="min-h-screen bg-lightGrey flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <Search className="h-8 w-8 text-red-600" />
           </div>
           <h1 className="text-2xl font-serif font-bold text-neutralBlack mb-4">
             Error Loading Products
           </h1>
-          <p className="text-gray-600 mb-6">
-            {productsError}
-          </p>
+          <p className="text-gray-600 mb-6">{productsError}</p>
           <button 
             onClick={() => window.location.reload()}
             className="btn-primary"
@@ -228,7 +173,7 @@ export default function Products() {
   // Show approval pending message if not approved
   if (!profile?.approved) {
     return (
-      <div className="min-h-screen bg-lightGrey flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
         <div className="max-w-md mx-auto text-center p-8">
           <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <Lock className="h-8 w-8 text-yellow-600" />
@@ -237,7 +182,7 @@ export default function Products() {
             Account Pending Approval
           </h1>
           <p className="text-gray-600 mb-6">
-            Your account is currently under review. You'll gain access to our product catalog once your account is approved by our team.
+            Your account is currently under review. You'll gain access to our product catalog once approved by our team.
           </p>
           <p className="text-sm text-gray-500">
             This process typically takes 1-2 business days. Thank you for your patience!
@@ -246,9 +191,6 @@ export default function Products() {
       </div>
     );
   }
-
-  // Products are now pre-filtered by the optimized hook
-  const filteredProducts = products;
 
   const handleAddToCart = (product: Product, quantity: number = 1) => {
     const cartItem = {
@@ -261,8 +203,8 @@ export default function Products() {
       quickbooks_id: product.quickbooks_id,
       image: getCategoryImage(product.category || ''),
       tags: [product.category || 'Product'],
-      packSize: 'Unit', // Using default since pack_size doesn't exist in Product type
-      country: 'Mediterranean' // Using default since country doesn't exist in Product type
+      packSize: 'Unit',
+      country: 'Mediterranean'
     };
 
     if (quantity === 1) {
@@ -285,47 +227,54 @@ export default function Products() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Professional Hero Section */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+      {/* Hero Section */}
       <ProfessionalHero />
 
-      {/* Category Showcase */}
-      <div className="container-custom py-12">
-        <CategoryShowcase 
-          onCategorySelect={setSelectedCategory}
-          selectedCategory={selectedCategory}
-        />
-      </div>
-
-      <div className="container-custom py-8">
+      {/* Main Content */}
+      <div className="container-custom py-16">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar */}
-          <div className={`lg:w-64 space-y-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
-            <div className="bg-white rounded-xl p-6 shadow-elevation">
-              <h3 className="font-serif font-bold text-lg text-neutralBlack mb-4">Filters</h3>
+          <div className={`lg:w-80 space-y-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+            <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/50 sticky top-8">
+              <h3 className="font-serif font-bold text-2xl text-neutralBlack mb-6">Filters</h3>
               
               {/* Search */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-neutralBlack mb-2">Search Products</label>
+                <label className="block text-sm font-semibold text-neutralBlack mb-3">Search Products</label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="text"
                     placeholder="Search products..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    className="w-full pl-12 pr-12 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primaryBlue/20 focus:border-primaryBlue bg-white/50 transition-all duration-300"
                   />
+                  {/* Show loading indicator when user is typing but search hasn't been triggered yet */}
+                  {searchInput !== debouncedSearchTerm && searchInput.length > 0 && (
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-primaryBlue border-t-transparent"></div>
+                    </div>
+                  )}
                 </div>
+                {searchInput.length > 0 && (
+                  <div className="mt-2 text-xs text-gray-500">
+                    {searchInput === debouncedSearchTerm 
+                      ? `Found ${products.length} products` 
+                      : 'Searching...'
+                    }
+                  </div>
+                )}
               </div>
 
               {/* Category Filter */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-neutralBlack mb-2">Category</label>
+              <div className="mb-8">
+                <label className="block text-sm font-semibold text-neutralBlack mb-3">Category</label>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
+                  className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primaryBlue/20 focus:border-primaryBlue bg-white/50 transition-all duration-300"
                 >
                   {categories.map((category) => (
                     <option key={category} value={category}>{category}</option>
@@ -335,10 +284,10 @@ export default function Products() {
 
               <button
                 onClick={() => {
-                  setSearchTerm("");
+                  setSearchInput("");
                   setSelectedCategory("All Categories");
                 }}
-                className="w-full btn-outline"
+                className="w-full py-3 px-6 border-2 border-gray-200 text-gray-700 rounded-xl font-semibold transition-all duration-300 hover:border-primaryBlue hover:text-primaryBlue hover:bg-primaryBlue/5"
               >
                 Clear Filters
               </button>
@@ -352,40 +301,44 @@ export default function Products() {
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="lg:hidden btn-outline"
+                  className="lg:hidden py-2 px-4 border-2 border-gray-200 text-gray-700 rounded-xl font-semibold transition-all duration-300 hover:border-primaryBlue hover:text-primaryBlue"
                 >
-                  <Filter className="h-4 w-4 mr-2" />
+                  <Filter className="h-4 w-4 mr-2 inline-block" />
                   Filters
                 </button>
-                <span className="text-gray-600">
-                  {filteredProducts.length} products found
+                <span className="text-gray-600 font-medium">
+                  {products.length} products found
                 </span>
               </div>
               
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-lg transition-colors ${
-                    viewMode === "grid" ? "bg-primaryBlue text-white" : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                  className={`p-3 rounded-xl transition-all duration-300 ${
+                    viewMode === "grid" 
+                      ? "bg-primaryBlue text-white shadow-lg" 
+                      : "bg-gray-200 text-gray-600 hover:bg-gray-300"
                   }`}
                 >
-                  <Grid className="h-4 w-4" />
+                  <Grid className="h-5 w-5" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-lg transition-colors ${
-                    viewMode === "list" ? "bg-primaryBlue text-white" : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                  className={`p-3 rounded-xl transition-all duration-300 ${
+                    viewMode === "list" 
+                      ? "bg-primaryBlue text-white shadow-lg" 
+                      : "bg-gray-200 text-gray-600 hover:bg-gray-300"
                   }`}
                 >
-                  <List className="h-4 w-4" />
+                  <List className="h-5 w-5" />
                 </button>
               </div>
             </div>
 
-            {/* Enhanced Products with Professional Cards */}
+            {/* Products Display */}
             {viewMode === "grid" ? (
               <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
-                {filteredProducts.map((product) => (
+                {products.map((product) => (
                   <EnhancedProductCard
                     key={product.id}
                     product={product}
@@ -397,7 +350,7 @@ export default function Products() {
               </div>
             ) : (
               <div className="space-y-6">
-                {filteredProducts.map((product) => (
+                {products.map((product) => (
                   <EnhancedProductCard
                     key={product.id}
                     product={product}
@@ -409,42 +362,23 @@ export default function Products() {
               </div>
             )}
 
-            {/* Load More Button for Virtual Scrolling */}
-            {hasNextPage && !productsLoading && (
-              <div className="text-center py-8">
-                <button
-                  onClick={loadNextPage}
-                  className="btn-outline"
-                >
-                  Load More Products
-                </button>
-              </div>
-            )}
-
-            {filteredProducts.length === 0 && !productsLoading && (
+            {/* No products found */}
+            {products.length === 0 && !productsLoading && (
               <div className="text-center py-16">
                 <div className="text-gray-400 mb-4">
                   <Search className="h-16 w-16 mx-auto" />
                 </div>
-                <h3 className="text-xl font-serif font-bold text-neutralBlack mb-2">No products found</h3>
-                <p className="text-gray-600 mb-6">Try adjusting your search criteria or filters.</p>
+                <h3 className="text-2xl font-serif font-bold text-neutralBlack mb-4">No products found</h3>
+                <p className="text-gray-600 mb-8 text-lg">Try adjusting your search criteria or filters.</p>
                 <button
                   onClick={() => {
-                    setSearchTerm("");
+                    setSearchInput("");
                     setSelectedCategory("All Categories");
                   }}
                   className="btn-primary"
                 >
                   Clear All Filters
                 </button>
-              </div>
-            )}
-
-            {/* Performance Stats (development only) */}
-            {process.env.NODE_ENV === 'development' && cacheStats && (
-              <div className="mt-8 p-4 bg-gray-100 rounded-lg text-xs text-gray-600">
-                <strong>🚀 Performance Stats:</strong> Cache hits - Products: {cacheStats.products || 0}, 
-                Search: {cacheStats.searchResults || 0}
               </div>
             )}
           </div>

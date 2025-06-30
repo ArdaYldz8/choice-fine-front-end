@@ -39,7 +39,7 @@ const Admin: React.FC = () => {
     pageSize: 20 // Optimized page size for admin interface
   })
 
-  // Check admin authorization (yönetici yetkisi kontrolü)
+  // Check admin authorization
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -63,7 +63,7 @@ const Admin: React.FC = () => {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
-            <p>Yetki kontrolü yapılıyor...</p>
+            <p>Checking authorization...</p>
           </div>
         </div>
       </div>
@@ -73,8 +73,8 @@ const Admin: React.FC = () => {
   // Redirect if not admin
   if (!isAdmin) {
     toast({
-      title: "Erişim Reddedildi",
-      description: "Bu sayfaya erişim için yönetici yetkisine sahip olmanız gerekiyor.",
+      title: "Access Denied",
+      description: "You need admin privileges to access this page.",
       variant: "destructive",
     })
     return <Navigate to="/login" replace />
@@ -84,8 +84,8 @@ const Admin: React.FC = () => {
     try {
       await approveUser(uid)
       toast({
-        title: "Başarılı",
-        description: `${fullName} başarıyla onaylandı.`,
+        title: "Success",
+        description: `${fullName} successfully approved.`,
       })
     } catch (error) {
       console.error('Approval error:', error)
@@ -96,8 +96,8 @@ const Admin: React.FC = () => {
     try {
       await updateOrderStatus(orderId, status)
       toast({
-        title: "Başarılı",
-        description: `Sipariş durumu güncellendi: ${status}`,
+        title: "Success",
+        description: `Order status updated: ${status}`,
       })
     } catch (error) {
       console.error('Order status update error:', error)
@@ -121,9 +121,9 @@ const Admin: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Yönetici Paneli</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Admin Panel</h1>
           <p className="text-muted-foreground">
-            Kullanıcı onaylarını ve siparişleri yönetin
+            Manage user approvals and orders
           </p>
         </div>
       </div>
@@ -132,52 +132,52 @@ const Admin: React.FC = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Bekleyen Onaylar</CardTitle>
+            <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{pendingUsers.length}</div>
             <p className="text-xs text-muted-foreground">
-              Onay bekleyen kullanıcı sayısı
+              Users awaiting approval
             </p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Toplam Sipariş</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{orderStats.totalOrders}</div>
             <p className="text-xs text-muted-foreground">
-              Toplam sipariş sayısı
+              Total number of orders
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Bekleyen Siparişler</CardTitle>
+            <CardTitle className="text-sm font-medium">Pending Orders</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{orderStats.pendingOrders}</div>
             <p className="text-xs text-muted-foreground">
-              İşleme alınacak siparişler
+              Orders to be processed
             </p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">İşlenen Siparişler</CardTitle>
+            <CardTitle className="text-sm font-medium">Processing Orders</CardTitle>
             <Truck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{orderStats.processingOrders}</div>
             <p className="text-xs text-muted-foreground">
-              Hazırlanmakta olan siparişler
+              Orders being prepared
             </p>
           </CardContent>
         </Card>
@@ -188,11 +188,11 @@ const Admin: React.FC = () => {
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
-            Kullanıcı Yönetimi
+            User Management
           </TabsTrigger>
           <TabsTrigger value="orders" className="flex items-center gap-2">
             <Package className="h-4 w-4" />
-            Sipariş Yönetimi
+            Order Management
           </TabsTrigger>
         </TabsList>
 
@@ -203,7 +203,7 @@ const Admin: React.FC = () => {
             <Alert variant="destructive">
               <X className="h-4 w-4" />
               <AlertDescription>
-                Hata: {error}
+                Error: {error}
               </AlertDescription>
             </Alert>
           )}
@@ -215,10 +215,10 @@ const Admin: React.FC = () => {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <Clock className="h-5 w-5" />
-                    Onay Bekleyen Kullanıcılar
+                    Users Awaiting Approval
                   </CardTitle>
                   <CardDescription>
-                    Aşağıdaki kullanıcılar sisteme kaydolmuş ve onayınızı bekliyor
+                    The following users have registered and are awaiting your approval
                   </CardDescription>
                 </div>
                 <Button 
@@ -228,7 +228,7 @@ const Admin: React.FC = () => {
                   disabled={isLoading}
                 >
                   <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                  Yenile
+                  Refresh
                 </Button>
               </div>
             </CardHeader>
@@ -248,9 +248,9 @@ const Admin: React.FC = () => {
               ) : pendingUsers.length === 0 ? (
                 <div className="text-center py-8">
                   <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Onay bekleyen kullanıcı yok</h3>
+                  <h3 className="text-lg font-medium mb-2">No users awaiting approval</h3>
                   <p className="text-muted-foreground">
-                    Şu anda onayınızı bekleyen herhangi bir kullanıcı bulunmuyor.
+                    There are currently no users awaiting your approval.
                   </p>
                 </div>
               ) : (
@@ -262,12 +262,12 @@ const Admin: React.FC = () => {
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <h4 className="font-medium">{user.full_name || 'İsim belirtilmemiş'}</h4>
-                          <Badge variant="secondary">Beklemede</Badge>
+                          <h4 className="font-medium">{user.full_name || 'Name not provided'}</h4>
+                          <Badge variant="secondary">Pending</Badge>
                         </div>
                         <div className="text-sm text-muted-foreground space-y-1">
-                          <p>Email: {user.email || 'Belirtilmemiş'}</p>
-                          <p>Kayıt Tarihi: {new Date(user.created_at).toLocaleDateString('tr-TR')}</p>
+                          <p>Email: {user.email || 'Not specified'}</p>
+                          <p>Registration Date: {new Date(user.created_at).toLocaleDateString('en-US')}</p>
                           <p className="font-mono text-xs">ID: {user.id}</p>
                         </div>
                       </div>
@@ -278,7 +278,7 @@ const Admin: React.FC = () => {
                           className="bg-green-600 hover:bg-green-700"
                         >
                           <Check className="h-4 w-4 mr-1" />
-                          Onayla
+                          Approve
                         </Button>
                       </div>
                     </div>
@@ -296,7 +296,7 @@ const Admin: React.FC = () => {
             <Alert variant="destructive">
               <X className="h-4 w-4" />
               <AlertDescription>
-                Hata: {ordersError}
+                Error: {ordersError}
               </AlertDescription>
             </Alert>
           )}
@@ -306,10 +306,10 @@ const Admin: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Package className="h-5 w-5" />
-                Tüm Siparişler
+                All Orders
               </CardTitle>
               <CardDescription>
-                Müşteriler tarafından verilen siparişleri yönetin
+                Manage orders placed by customers
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -328,9 +328,9 @@ const Admin: React.FC = () => {
               ) : orders.length === 0 ? (
                 <div className="text-center py-8">
                   <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Henüz sipariş yok</h3>
+                  <h3 className="text-lg font-medium mb-2">No orders yet</h3>
                   <p className="text-muted-foreground">
-                    Müşteriler sipariş vermeye başlayınca burada görünecek.
+                    Orders will appear here once customers start placing them.
                   </p>
                 </div>
               ) : (
@@ -343,15 +343,15 @@ const Admin: React.FC = () => {
                       <div className="flex items-start justify-between mb-3">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <h4 className="font-medium">Sipariş #{order.id?.slice(-8)}</h4>
+                            <h4 className="font-medium">Order #{order.id?.slice(-8)}</h4>
                             <Badge className={getStatusColor(order.status)}>
                               {order.status}
                             </Badge>
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            <p>Toplam Ürün: {order.total_items}</p>
-                            <p>Sipariş Tarihi: {new Date(order.created_at || '').toLocaleDateString('tr-TR')}</p>
-                            {order.notes && <p>Not: {order.notes}</p>}
+                            <p>Total Items: {order.total_items}</p>
+                            <p>Order Date: {new Date(order.created_at || '').toLocaleDateString('en-US')}</p>
+                            {order.notes && <p>Note: {order.notes}</p>}
                           </div>
                         </div>
                         <div className="flex gap-2">
@@ -360,24 +360,24 @@ const Admin: React.FC = () => {
                             onChange={(e) => handleOrderStatusUpdate(order.id!, e.target.value)}
                             className="text-sm border rounded px-2 py-1"
                           >
-                            <option value="pending">Beklemede</option>
-                            <option value="confirmed">Onaylandı</option>
-                            <option value="processing">İşleniyor</option>
-                            <option value="shipped">Gönderildi</option>
-                            <option value="delivered">Teslim Edildi</option>
-                            <option value="cancelled">İptal Edildi</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="processing">Processing</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="cancelled">Cancelled</option>
                           </select>
                         </div>
                       </div>
                       
                       {/* Order Items */}
                       <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-                        <h5 className="font-medium text-sm">Sipariş İçeriği:</h5>
+                        <h5 className="font-medium text-sm">Order Contents:</h5>
                         <div className="grid gap-2">
                           {order.items.map((item, index) => (
                             <div key={index} className="flex justify-between text-sm">
                               <span>{item.name} ({item.packSize})</span>
-                              <span>Adet: {item.quantity}</span>
+                              <span>Qty: {item.quantity}</span>
                             </div>
                           ))}
                         </div>

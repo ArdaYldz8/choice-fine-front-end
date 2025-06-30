@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, User, AlertCircle } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, User, AlertCircle, Shield, Star } from "lucide-react";
 import { supabase, getCurrentUserProfile, clearAuthCache } from "../lib/supabase";
 
 export default function Login() {
@@ -137,172 +137,230 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-lightGrey">
-      <div className="container-custom py-16">
-        <div className="max-w-md mx-auto">
-          <div className="text-center mb-8">
-            <Link to="/" className="inline-flex items-center space-x-3 mb-8">
-              <div className="w-12 h-12 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center">
-                <span className="text-white font-serif font-bold text-xl">CF</span>
-              </div>
-              <div>
-                <div className="font-serif font-bold text-xl text-neutralBlack">Choice Foods</div>
-                <div className="text-sm text-primaryBlue">Your Source for Fine Mediterranean Products</div>
-              </div>
-            </Link>
-            
-            <h1 className="text-3xl font-serif font-bold text-neutralBlack mb-4">
-              {isSignUp ? 'Üye Olmak İçin Başvur' : 'Üye Girişi'}
-            </h1>
-            <p className="text-gray-600">
-              {isSignUp 
-                ? 'Wholesale hesabınız için başvuru yapın. Onay sürecinden sonra giriş yapabileceksiniz.'
-                : 'Wholesale hesabınıza giriş yapın ve siparişlerinizi yönetin.'
-              }
-            </p>
+    <div className="min-h-screen relative bg-gradient-to-br from-gray-50 via-white to-blue-50 overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-20 -left-20 w-80 h-80 bg-gradient-to-br from-primaryBlue/20 to-transparent rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-br from-accentRed/20 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-gradient-to-br from-primaryBlue/10 to-transparent rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+
+      {/* Animated background pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)`,
+          backgroundSize: '24px 24px'
+        }} />
+      </div>
+
+      <div className="relative container mx-auto px-4 py-12 min-h-screen flex items-center justify-center">
+        <div className="w-full max-w-md animate-fade-in">
+          {/* Header Section */}
+          <div className="text-center mb-10">
+            <div className="space-y-3">
+              <h1 className="text-4xl font-serif font-bold bg-gradient-to-r from-neutralBlack to-primaryBlue bg-clip-text text-transparent">
+                {isSignUp ? 'Join Our Community' : 'Welcome Back'}
+              </h1>
+              <p className="text-gray-600 text-lg leading-relaxed max-w-sm mx-auto">
+                {isSignUp 
+                  ? 'Apply for your wholesale account and gain access to premium Mediterranean products.'
+                  : 'Sign in to your wholesale account and manage your orders with ease.'
+                }
+              </p>
+            </div>
           </div>
 
-          <div className="bg-white rounded-xl p-8 shadow-elevation">
-            <form onSubmit={isSignUp ? handleSignUp : handleLogin} className="space-y-6">
-              {isSignUp && (
-                <div>
-                  <label className="block text-sm font-medium text-neutralBlack mb-2">Ad Soyad</label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          {/* Main Card */}
+          <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/50 relative overflow-hidden animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            {/* Card decorative elements */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primaryBlue/10 to-transparent rounded-full blur-xl" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-accentRed/10 to-transparent rounded-full blur-xl" />
+            
+            <div className="relative">
+              {/* Mode Toggle Pills */}
+              <div className="flex bg-gray-100 rounded-2xl p-1 mb-8">
+                <button
+                  onClick={() => !isSignUp && toggleMode()}
+                  className={`flex-1 py-3 px-6 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                    !isSignUp 
+                      ? 'bg-white text-primaryBlue shadow-lg transform scale-[1.02]' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => isSignUp && toggleMode()}
+                  className={`flex-1 py-3 px-6 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                    isSignUp 
+                      ? 'bg-white text-primaryBlue shadow-lg transform scale-[1.02]' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Sign Up
+                </button>
+              </div>
+
+              <form onSubmit={isSignUp ? handleSignUp : handleLogin} className="space-y-6">
+                {isSignUp && (
+                  <div className="animate-fade-in">
+                    <label className="block text-sm font-semibold text-neutralBlack mb-3">Full Name</label>
+                    <div className="relative group">
+                      <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primaryBlue transition-colors duration-200" />
+                      <input
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primaryBlue/20 focus:border-primaryBlue bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-gray-300"
+                        placeholder="Enter your full name"
+                        required
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className={isSignUp ? "animate-fade-in" : ""} style={{ animationDelay: isSignUp ? '0.1s' : '0' }}>
+                  <label className="block text-sm font-semibold text-neutralBlack mb-3">Email Address</label>
+                  <div className="relative group">
+                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primaryBlue transition-colors duration-200" />
                     <input
-                      type="text"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
-                      placeholder="Adınız ve Soyadınız"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primaryBlue/20 focus:border-primaryBlue bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-gray-300"
+                      placeholder="your@email.com"
                       required
                     />
                   </div>
                 </div>
-              )}
 
-              <div>
-                <label className="block text-sm font-medium text-neutralBlack mb-2">Email Adresi</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
-                    placeholder="your@email.com"
-                    required
-                  />
+                <div className={isSignUp ? "animate-fade-in" : ""} style={{ animationDelay: isSignUp ? '0.2s' : '0' }}>
+                  <label className="block text-sm font-semibold text-neutralBlack mb-3">Password</label>
+                  <div className="relative group">
+                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primaryBlue transition-colors duration-200" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-12 pr-14 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primaryBlue/20 focus:border-primaryBlue bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-gray-300"
+                      placeholder={isSignUp ? "Create a strong password" : "Enter your password"}
+                      required
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primaryBlue transition-colors duration-200"
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-neutralBlack mb-2">Şifre</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryBlue focus:border-transparent"
-                    placeholder={isSignUp ? "Güçlü bir şifre seçin" : "Şifrenizi girin"}
-                    required
-                    minLength={6}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                {!isSignUp && (
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center group cursor-pointer">
+                      <div className="relative">
+                        <input
+                          type="checkbox"
+                          className="sr-only"
+                        />
+                        <div className="w-5 h-5 border-2 border-gray-300 rounded-md group-hover:border-primaryBlue transition-colors duration-200"></div>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-2 h-2 bg-primaryBlue rounded-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        </div>
+                      </div>
+                      <span className="ml-3 text-sm text-gray-600 group-hover:text-gray-800 transition-colors duration-200">Remember me</span>
+                    </label>
+                    <a href="#" className="text-sm text-primaryBlue hover:text-accentRed transition-colors duration-200 font-medium">
+                      Forgot password?
+                    </a>
+                  </div>
+                )}
+
+                {error && (
+                  <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex items-start animate-shake">
+                    <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
+                    <p className="text-red-700 text-sm font-medium">{error}</p>
+                  </div>
+                )}
+
+                {success && (
+                  <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 animate-fade-in">
+                    <p className="text-green-700 text-sm font-medium flex items-center">
+                      <Star className="h-4 w-4 mr-2 fill-current" />
+                      {success}
+                    </p>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-primaryBlue to-accentRed text-white py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-primaryBlue/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 group"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                      {isSignUp ? 'Sending Application...' : 'Signing In...'}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center">
+                      {isSignUp ? 'Submit Application' : 'Sign In'}
+                      <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
+                    </div>
+                  )}
+                </button>
+              </form>
+
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <div className="text-center">
+                  <p className="text-gray-600 mb-4">
+                    {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                  </p>
+                  <button 
+                    onClick={toggleMode}
+                    className="w-full py-3 px-6 border-2 border-gray-200 text-gray-700 rounded-xl font-semibold transition-all duration-300 hover:border-primaryBlue hover:text-primaryBlue hover:bg-primaryBlue/5"
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {isSignUp ? 'Sign In Instead' : 'Apply for Membership'}
                   </button>
                 </div>
-              </div>
-
-              {!isSignUp && (
-                <div className="flex items-center justify-between">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="rounded border-gray-300 text-primaryBlue focus:ring-primaryBlue"
-                    />
-                    <span className="ml-2 text-sm text-gray-600">Beni hatırla</span>
-                  </label>
-                  <a href="#" className="text-sm text-primaryBlue hover:text-neutralBlack transition-colors">
-                    Şifrenizi mi unuttunuz?
-                  </a>
-                </div>
-              )}
-
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start">
-                  <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-2 flex-shrink-0" />
-                  <p className="text-red-600 text-sm">{error}</p>
-                </div>
-              )}
-
-              {success && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                  <p className="text-green-600 text-sm">{success}</p>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full btn-primary"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    {isSignUp ? 'Başvuru gönderiliyor...' : 'Giriş yapılıyor...'}
-                  </>
-                ) : (
-                  <>
-                    {isSignUp ? 'Başvuru Gönder' : 'Giriş Yap'}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
-                )}
-              </button>
-            </form>
-
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <div className="text-center">
-                <p className="text-gray-600 mb-4">
-                  {isSignUp ? 'Zaten hesabınız var mı?' : 'Hesabınız yok mu?'}
-                </p>
-                <button 
-                  onClick={toggleMode}
-                  className="btn-outline w-full"
-                >
-                  {isSignUp ? 'Giriş Yapmak için Tıklayın' : 'Üye Olmak İçin Başvurun'}
-                </button>
               </div>
             </div>
           </div>
 
+          {/* Additional Info for Sign Up */}
           {isSignUp && (
-            <div className="mt-8 text-center">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 className="font-semibold text-neutralBlack mb-2">Onay Süreci Hakkında</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Başvurunuz incelendikten sonra, hesabınız aktif hale getirilecektir. 
-                  Bu süreç genellikle 1-2 iş günü sürmektedir.
-                </p>
-                <p className="text-xs text-gray-500">
-                  Acil durumlar için: <Link to="/contact" className="text-primaryBlue hover:text-neutralBlack transition-colors">iletişim sayfamızı</Link> ziyaret edin.
-                </p>
+            <div className="mt-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-primaryBlue/10 rounded-full blur-xl" />
+                <div className="relative">
+                  <div className="flex items-center mb-4">
+                    <Shield className="h-6 w-6 text-primaryBlue mr-3" />
+                    <h3 className="font-serif font-bold text-neutralBlack text-lg">Approval Process</h3>
+                  </div>
+                  <p className="text-gray-700 mb-4 leading-relaxed">
+                    Your application will be reviewed and your account activated within 1-2 business days. 
+                    We ensure all our wholesale partners meet our quality standards.
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    For urgent matters, please visit our{" "}
+                    <Link to="/contact" className="text-primaryBlue hover:text-accentRed transition-colors duration-200 font-medium underline">
+                      contact page
+                    </Link>
+                  </p>
+                </div>
               </div>
             </div>
           )}
 
-          <div className="mt-8 text-center text-sm text-gray-500">
+          {/* Footer */}
+          <div className="mt-8 text-center text-sm text-gray-500 animate-fade-in" style={{ animationDelay: '0.6s' }}>
             <p>
-              {isSignUp ? 'Başvuru yaparak' : 'Giriş yaparak'}{" "}
-              <a href="#" className="text-primaryBlue hover:text-neutralBlack transition-colors">Hizmet Şartlarımızı</a>
-              {" "}ve{" "}
-              <a href="#" className="text-primaryBlue hover:text-neutralBlack transition-colors">Gizlilik Politikamızı</a>
-              {" "}kabul etmiş olursunuz.
+              By {isSignUp ? 'applying' : 'signing in'}, you agree to our{" "}
+              <a href="#" className="text-primaryBlue hover:text-accentRed transition-colors duration-200 underline">Terms of Service</a>
+              {" "}and{" "}
+              <a href="#" className="text-primaryBlue hover:text-accentRed transition-colors duration-200 underline">Privacy Policy</a>
             </p>
           </div>
         </div>

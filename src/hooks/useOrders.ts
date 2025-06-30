@@ -8,12 +8,14 @@ export function useOrders(options: {
   status?: Order['status'];
   dateRange?: { start: Date; end: Date };
   enabled?: boolean;
+  userId?: string;
 } = {}) {
   const {
     pageSize = 25,
     status,
     dateRange,
-    enabled = true
+    enabled = true,
+    userId
   } = options;
 
   const [orders, setOrders] = useState<Order[]>([]);
@@ -24,13 +26,18 @@ export function useOrders(options: {
 
   // Generate cache key based on filters
   const cacheKey = useMemo(() => {
-    const filters = { status, dateRange, page: currentPage, pageSize };
+    const filters = { status, dateRange, page: currentPage, pageSize, userId };
     return `orders_${JSON.stringify(filters)}`;
-  }, [status, dateRange, currentPage, pageSize]);
+  }, [status, dateRange, currentPage, pageSize, userId]);
 
   // Fetch orders with caching and optimization
   const fetchOrders = useCallback(async (page = 0, append = false) => {
-    if (!enabled) return;
+    console.log('🔄 fetchOrders called:', { enabled, userId, page, append });
+    
+    if (!enabled) {
+      console.log('❌ fetchOrders disabled, returning');
+      return;
+    }
 
     try {
       performanceMonitor.startTiming('fetchOrders');
@@ -44,13 +51,15 @@ export function useOrders(options: {
       if (!append) {
         const cachedOrders = await cacheUtils.get<Order[]>('orders', cacheKey);
         if (cachedOrders) {
-          console.log('📦 Orders loaded from cache');
+          console.log('📦 Orders loaded from cache:', cachedOrders.length);
           setOrders(cachedOrders);
           setLoading(false);
           performanceMonitor.endTiming('fetchOrders');
           return;
         }
       }
+
+      console.log('🔍 Building query with filters:', { status, dateRange, userId, page, pageSize });
 
       // Build optimized query
       let query = supabase
@@ -68,13 +77,21 @@ export function useOrders(options: {
 
       // Add filters
       if (status) {
+        console.log('🔎 Adding status filter:', status);
         query = query.eq('status', status);
       }
 
       if (dateRange) {
+        console.log('🔎 Adding date range filter:', dateRange);
         query = query
           .gte('created_at', dateRange.start.toISOString())
           .lte('created_at', dateRange.end.toISOString());
+      }
+
+      // Add user filter for user-specific orders
+      if (userId) {
+        console.log('🔎 Adding userId filter:', userId);
+        query = query.eq('user_id', userId);
       }
 
       // Add pagination and ordering
@@ -82,12 +99,18 @@ export function useOrders(options: {
         .order('created_at', { ascending: false })
         .range(page * pageSize, (page + 1) * pageSize - 1);
 
+      console.log('📡 Executing query...');
       const { data, error: queryError } = await query;
 
       if (queryError) {
-        console.error('Orders fetch error:', queryError);
+        console.error('❌ Orders fetch error:', queryError);
         throw queryError;
       }
+
+      console.log('📊 Query result:', { 
+        dataLength: data?.length || 0, 
+        data: data ? data.map(o => ({ id: o.id, user_id: o.user_id, status: o.status })) : null 
+      });
 
       const newOrders = data || [];
       
@@ -107,12 +130,12 @@ export function useOrders(options: {
       performanceMonitor.endTiming('fetchOrders');
 
     } catch (err: any) {
-      console.error('Error fetching orders:', err);
+      console.error('❌ Error fetching orders:', err);
       setError(err.message || 'Failed to fetch orders');
     } finally {
       setLoading(false);
     }
-  }, [enabled, cacheKey, pageSize, status, dateRange]);
+  }, [enabled, cacheKey, pageSize, status, dateRange, userId]);
 
   // Load next page for pagination
   const loadNextPage = useCallback(async () => {
@@ -285,41 +308,68 @@ export function useOrders(options: {
 
   // Real-time subscription with debouncing
   useEffect(() => {
+    if (!enabled) {
+      console.log('❌ useOrders: Not enabled, skipping subscription');
+      return;
+    }
+
+    console.log('🔄 useOrders: Setting up subscription and initial fetch');
     fetchOrders();
 
     // Subscribe to real-time changes with performance optimization
+    const channelName = userId ? `orders_user_${userId}_changes` : 'orders_admin_changes';
+    console.log('📡 useOrders: Creating subscription channel:', channelName);
+    
     const subscription = supabase
-      .channel('orders_admin_changes')
+      .channel(channelName)
       .on('postgres_changes', 
         { 
           event: '*', 
           schema: 'public', 
-          table: 'orders' 
+          table: 'orders'
+          // Removed user filter - do client-side filtering instead
         }, 
         (payload) => {
-          console.log('Orders real-time update:', payload.eventType);
+          console.log('📨 Orders real-time update received:', payload.eventType, payload);
+          
+          // Client-side filtering: only react to changes for this user
+          if (userId && payload.new && (payload.new as any).user_id !== userId && 
+              payload.old && (payload.old as any).user_id !== userId) {
+            console.log('🚫 Ignoring update for different user');
+            return;
+          }
+          
+          // Clear cache immediately on updates
+          cacheUtils.clear('orders');
           
           // Debounced refresh to avoid excessive updates
-          const debouncedRefresh = setTimeout(() => {
+          setTimeout(() => {
+            console.log('🔄 Refreshing orders after real-time update');
             fetchOrders(0, false); // Refresh from beginning
-          }, 1000);
-
-          return () => clearTimeout(debouncedRefresh);
+          }, 500); // Reduced delay for better UX
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 Subscription status:', status);
+      });
 
     return () => {
+      console.log('🚪 useOrders: Cleaning up subscription');
       subscription.unsubscribe();
     };
-  }, [fetchOrders]);
+  }, [fetchOrders, userId, enabled]);
 
   // Effect for filter changes
   useEffect(() => {
+    if (!enabled) return;
+    
+    console.log('🔄 useOrders: Filters changed, refetching orders');
     setCurrentPage(0);
     setOrders([]);
+    // Clear cache when filters change
+    cacheUtils.clear('orders');
     fetchOrders(0, false);
-  }, [status, dateRange]);
+  }, [status, dateRange, userId, enabled]);
 
   return {
     orders,

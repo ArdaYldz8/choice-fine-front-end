@@ -12,8 +12,8 @@ const navigation = [
     href: "/",
   },
   {
-    name: "Contact",
-    href: "/contact",
+    name: "Catalog",
+    href: "/catalog",
   }
 ];
 
@@ -206,9 +206,9 @@ export function Header() {
   }, []);
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-white/60 backdrop-blur-lg shadow-sm fixed top-0 left-0 right-0 w-full z-50">
       {/* Top bar - desktop only */}
-      <div className="hidden lg:block bg-neutralBlack text-white py-2">
+      <div className="hidden lg:block bg-neutralBlack/90 backdrop-blur-md text-white py-2">
         <div className="container-custom flex justify-between items-center text-sm">
           <div className="flex items-center space-x-6">
             <a href="tel:336-782-8283" className="flex items-center space-x-2 hover:text-accentRed transition-colors">
@@ -230,14 +230,12 @@ export function Header() {
       <nav className="container-custom py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center">
-              <span className="text-white font-serif font-bold text-xl">CF</span>
-            </div>
-            <div>
-              <div className="font-serif font-bold text-xl text-neutralBlack">Choice Foods</div>
-              <div className="text-sm text-primaryBlue">Your Source for Fine Mediterranean Products</div>
-            </div>
+          <Link to="/" className="flex items-center">
+            <img 
+              src="/logo.png" 
+              alt="Choice Foods Logo" 
+              className="h-16 w-auto object-contain hover:scale-105 transition-transform duration-200"
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -254,7 +252,7 @@ export function Header() {
                 {item.name}
               </Link>
             ))}
-            {/* Sadece üyeler için Catalog */}
+            {/* Sadece üyeler için Shop */}
             {user && profile?.approved && (
               <Link
                 to="/products"
@@ -263,7 +261,7 @@ export function Header() {
                   isActive("/products") ? "text-primaryBlue" : "text-neutralBlack"
                 )}
               >
-                Catalog
+                Shop
               </Link>
             )}
           </div>
@@ -313,7 +311,7 @@ export function Header() {
 
                   {/* Dropdown Menu */}
                   {isUserMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-elevation border border-gray-200 py-2 z-50">
+                    <div className="absolute right-0 mt-2 w-64 bg-white/90 backdrop-blur-md rounded-lg shadow-elevation border border-gray-200/50 py-2 z-50">
                       {/* User Info */}
                       <div className="px-4 py-3 border-b border-gray-100">
                         <div className="font-medium text-neutralBlack">
@@ -375,9 +373,6 @@ export function Header() {
                 <Link to="/login" className="text-neutralBlack hover:text-primaryBlue transition-colors">
                   Member Login
                 </Link>
-                <Link to="/contact" className="btn-primary">
-                  Get In Touch
-                </Link>
               </div>
             )}
           </div>
@@ -397,7 +392,7 @@ export function Header() {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden mt-4 py-4 border-t border-gray-200">
+          <div className="lg:hidden mt-4 py-4 border-t border-gray-200/50 bg-white/80 backdrop-blur-md rounded-lg mx-4">
             <div className="space-y-4">
               {navigation.map((item) => (
                 <Link
@@ -413,7 +408,7 @@ export function Header() {
                 </Link>
               ))}
               
-              {/* Mobile - Sadece üyeler için Catalog */}
+              {/* Mobile - Sadece üyeler için Shop */}
               {user && profile?.approved && (
                 <Link
                   to="/products"
@@ -423,7 +418,7 @@ export function Header() {
                   )}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Catalog
+                  Shop
                 </Link>
               )}
               
