@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Package, Users, Globe, Award } from "lucide-react";
+import CompactBrandsSection from "../components/CompactBrandsSection";
 
 export default function Index() {
   const [counters, setCounters] = useState({ products: 0, clients: 0, years: 0 });
@@ -50,7 +51,7 @@ export default function Index() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative h-[110vh] w-full flex items-center justify-center overflow-hidden -mt-24 pt-24">
+      <section className="relative h-[70vh] sm:h-[80vh] md:h-[90vh] lg:h-[100vh] w-full flex items-center justify-center overflow-hidden -mt-24 pt-24">
         {/* Background Image with enhanced overlay */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-fixed"
@@ -71,163 +72,213 @@ export default function Index() {
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-primaryBlue/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
         </div>
         
-        {/* Content - Clean and Elegant */}
-        <div className="relative z-10 text-center text-white space-y-8 container-custom">
-          {/* Hero Logo */}
+        {/* Content - Clean and Elegant - Mobile Optimized */}
+        <div className="relative z-10 text-center text-white space-y-6 sm:space-y-8 container-custom px-4">
+          {/* Hero Logo - Responsive sizing */}
           <div className="flex justify-center animate-fade-in">
             <img 
               src="/logo.png" 
               alt="Choice Foods Logo" 
-              className="h-48 sm:h-64 md:h-80 lg:h-96 w-auto object-contain filter brightness-110 drop-shadow-2xl"
+              className="h-32 sm:h-40 md:h-48 lg:h-64 xl:h-80 w-auto object-contain filter brightness-110 drop-shadow-2xl"
             />
           </div>
 
-          {/* Simple Elegant Slogan */}
+          {/* Simple Elegant Slogan - Mobile responsive */}
           <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <p className="text-2xl md:text-3xl lg:text-4xl font-light text-white/95 max-w-4xl mx-auto leading-relaxed">
-              North Carolina's premier Mediterranean wholesaler
+            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-light text-white/95 max-w-4xl mx-auto leading-relaxed px-4">
+              North Carolina's Premier Mediterranean Grocery Wholesaler
             </p>
           </div>
 
-          {/* Single CTA */}
-          <div className="pt-8 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          {/* Single CTA - Mobile optimized */}
+          <div className="pt-4 sm:pt-8 animate-fade-in" style={{ animationDelay: '0.6s' }}>
             <Link 
               to="/catalog" 
-              className="group inline-flex items-center justify-center bg-white text-neutralBlack px-12 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/50"
+              className="group inline-flex items-center justify-center bg-white text-neutralBlack px-8 sm:px-12 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/50 touch-target"
             >
               Explore Our Products
-              <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
+              <ArrowRight className="ml-2 sm:ml-3 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform duration-200" />
             </Link>
           </div>
         </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white/50 rounded-full mt-2 animate-pulse"></div>
-          </div>
-        </div>
       </section>
 
-      {/* Stats Counter Section */}
-      <section id="stats-section" className="bg-gradient-to-br from-white via-lightGrey to-white section-padding">
-        <div className="container-custom">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
-              <div className="text-6xl md:text-7xl font-serif font-bold bg-gradient-to-r from-primaryBlue to-accentRed bg-clip-text text-transparent mb-4">
+      {/* Stats Counter Section - Mobile optimized */}
+      <section id="stats-section" className="bg-gradient-to-br from-white via-lightGrey to-white py-12 sm:py-16 md:py-20 lg:py-24">
+        <div className="container-custom px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 text-center shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
+              <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold bg-gradient-to-r from-primaryBlue to-accentRed bg-clip-text text-transparent mb-3 sm:mb-4">
                 {counters.products.toLocaleString()}+
               </div>
-              <div className="text-2xl font-semibold text-neutralBlack mb-3">Quality Products</div>
-              <p className="text-gray-600 leading-relaxed">Premium Mediterranean products from trusted suppliers worldwide</p>
+              <div className="text-lg sm:text-xl md:text-2xl font-semibold text-neutralBlack mb-2 sm:mb-3">Quality Products</div>
+              <p className="text-gray-600 leading-relaxed text-sm sm:text-base">Premium Mediterranean products from trusted suppliers worldwide</p>
             </div>
-            <div className="bg-white rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
-              <div className="text-6xl md:text-7xl font-serif font-bold bg-gradient-to-r from-accentRed to-primaryBlue bg-clip-text text-transparent mb-4">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 text-center shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
+              <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold bg-gradient-to-r from-accentRed to-primaryBlue bg-clip-text text-transparent mb-3 sm:mb-4">
                 {counters.clients.toLocaleString()}+
               </div>
-              <div className="text-2xl font-semibold text-neutralBlack mb-3">Satisfied Clients</div>
-              <p className="text-gray-600 leading-relaxed">Restaurants, grocery stores, and food service providers across North Carolina</p>
+              <div className="text-lg sm:text-xl md:text-2xl font-semibold text-neutralBlack mb-2 sm:mb-3">Satisfied Clients</div>
+              <p className="text-gray-600 leading-relaxed text-sm sm:text-base">Restaurants, grocery stores, and food service providers across North Carolina</p>
             </div>
-            <div className="bg-white rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
-              <div className="text-6xl md:text-7xl font-serif font-bold bg-gradient-to-r from-primaryBlue to-neutralBlack bg-clip-text text-transparent mb-4">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 text-center shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
+              <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold bg-gradient-to-r from-primaryBlue to-neutralBlack bg-clip-text text-transparent mb-3 sm:mb-4">
                 {counters.years}
               </div>
-              <div className="text-2xl font-semibold text-neutralBlack mb-3">Years of Excellence</div>
-              <p className="text-gray-600 leading-relaxed">Serving North Carolina with dedication since 2009</p>
+              <div className="text-lg sm:text-xl md:text-2xl font-semibold text-neutralBlack mb-2 sm:mb-3">Years of Excellence</div>
+              <p className="text-gray-600 leading-relaxed text-sm sm:text-base">Serving North Carolina with dedication since 2009</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Our Premium Products Section */}
-      <section className="section-padding">
-        <div className="container-custom">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-serif font-bold text-neutralBlack mb-6">
+      {/* Our Premium Products Section - Mobile optimized */}
+      <section className="py-12 sm:py-16 md:py-20 lg:py-24">
+        <div className="container-custom px-4">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-neutralBlack mb-4 sm:mb-6">
               Our Premium Products
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto px-4">
               Choice Foods supplies our clients with the best and freshest products in the market to ensure their health and satisfaction.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
             <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
-              <div className="h-48 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" }}>
+              <div className="h-40 sm:h-48 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" }}>
                 <div className="h-full bg-gradient-to-t from-black/60 to-transparent flex items-end">
                   <div className="p-4">
-                    <Package className="h-8 w-8 text-white mb-2" />
+                    <Package className="h-6 w-6 sm:h-8 sm:w-8 text-white mb-2" />
                   </div>
                 </div>
               </div>
-              <div className="p-6 text-center">
-                <h3 className="text-xl font-serif font-bold text-neutralBlack mb-3">Premium Grains</h3>
-                <p className="text-gray-600 leading-relaxed">
+              <div className="p-4 sm:p-6 text-center">
+                <h3 className="text-lg sm:text-xl font-serif font-bold text-neutralBlack mb-2 sm:mb-3">Premium Grains</h3>
+                <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
                   We carry a wide variety of grains from around the world, ensuring the freshest quality for our clients.
                 </p>
               </div>
             </div>
 
             <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
-              <div className="h-48 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1590779033100-9f60a05a013d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" }}>
+              <div className="h-40 sm:h-48 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1590779033100-9f60a05a013d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" }}>
                 <div className="h-full bg-gradient-to-t from-black/60 to-transparent flex items-end">
                   <div className="p-4">
-                    <Users className="h-8 w-8 text-white mb-2" />
+                    <Users className="h-6 w-6 sm:h-8 sm:w-8 text-white mb-2" />
                   </div>
                 </div>
               </div>
-              <div className="p-6 text-center">
-                <h3 className="text-xl font-serif font-bold text-neutralBlack mb-3">Frozen Vegetables</h3>
-                <p className="text-gray-600 leading-relaxed">
+              <div className="p-4 sm:p-6 text-center">
+                <h3 className="text-lg sm:text-xl font-serif font-bold text-neutralBlack mb-2 sm:mb-3">Frozen Vegetables</h3>
+                <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
                   The most popular brands in frozen vegetables, including exotic varieties and common favorites.
                 </p>
               </div>
             </div>
 
             <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
-              <div className="h-48 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1544145945-f90425340c7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" }}>
+              <div className="h-40 sm:h-48 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1544145945-f90425340c7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" }}>
                 <div className="h-full bg-gradient-to-t from-black/60 to-transparent flex items-end">
                   <div className="p-4">
-                    <Globe className="h-8 w-8 text-white mb-2" />
+                    <Globe className="h-6 w-6 sm:h-8 sm:w-8 text-white mb-2" />
                   </div>
                 </div>
               </div>
-              <div className="p-6 text-center">
-                <h3 className="text-xl font-serif font-bold text-neutralBlack mb-3">Imported Beverages</h3>
-                <p className="text-gray-600 leading-relaxed">
+              <div className="p-4 sm:p-6 text-center">
+                <h3 className="text-lg sm:text-xl font-serif font-bold text-neutralBlack mb-2 sm:mb-3">Imported Beverages</h3>
+                <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
                   The very best imported beverages to support a healthy and balanced lifestyle.
                 </p>
               </div>
             </div>
 
             <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
-              <div className="h-48 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1486427944299-d1955d23e34d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" }}>
+              <div className="h-40 sm:h-48 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1486427944299-d1955d23e34d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" }}>
                 <div className="h-full bg-gradient-to-t from-black/60 to-transparent flex items-end">
                   <div className="p-4">
-                    <Award className="h-8 w-8 text-white mb-2" />
+                    <Award className="h-6 w-6 sm:h-8 sm:w-8 text-white mb-2" />
                   </div>
                 </div>
               </div>
-              <div className="p-6 text-center">
-                <h3 className="text-xl font-serif font-bold text-neutralBlack mb-3">European Wafers & Cakes</h3>
-                <p className="text-gray-600 leading-relaxed">
+              <div className="p-4 sm:p-6 text-center">
+                <h3 className="text-lg sm:text-xl font-serif font-bold text-neutralBlack mb-2 sm:mb-3">European Wafers & Cakes</h3>
+                <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
                   The best Italian wafers and a wide variety of European cakes and cookies available in the US.
                 </p>
               </div>
             </div>
 
             <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
-              <div className="h-48 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1628088062854-d1870b4553da?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" }}>
+              <div className="h-40 sm:h-48 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1628088062854-d1870b4553da?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" }}>
                 <div className="h-full bg-gradient-to-t from-black/60 to-transparent flex items-end">
                   <div className="p-4">
-                    <Package className="h-8 w-8 text-white mb-2" />
+                    <Package className="h-6 w-6 sm:h-8 sm:w-8 text-white mb-2" />
                   </div>
                 </div>
               </div>
-              <div className="p-6 text-center">
-                <h3 className="text-xl font-serif font-bold text-neutralBlack mb-3">Dairy Products</h3>
-                <p className="text-gray-600 leading-relaxed">
+              <div className="p-4 sm:p-6 text-center">
+                <h3 className="text-lg sm:text-xl font-serif font-bold text-neutralBlack mb-2 sm:mb-3">Dairy Products</h3>
+                <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
                   Extensive selection of cheeses, yogurts and other dairy products of the highest quality.
                 </p>
+              </div>
+            </div>
+          </div>
+                </div>
+      </section>
+
+      {/* Compact Brands Section */}
+      <CompactBrandsSection />
+
+      {/* Catalog Download Section */}
+      <section className="bg-gradient-to-br from-lightGrey via-white to-lightGrey section-padding">
+        <div className="container-custom">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Content */}
+            <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-lg border border-gray-100 space-y-8">
+              <div>
+                <h2 className="text-4xl md:text-5xl font-serif font-bold text-neutralBlack mb-6">
+                  Product-Based Catalogs
+                </h2>
+                <p className="text-xl text-gray-600 leading-relaxed">
+                  Exploring our product-based catalogs provides detailed information about our offerings. From olives to baklava, our catalog showcases a diverse range of products, offering detailed information on each.
+                </p>
+              </div>
+              
+              <div className="pt-4">
+                <a 
+                  href="/Choice Foods Catalog.pdf"
+                  download="Choice Foods Catalog.pdf"
+                  className="group inline-flex items-center justify-center bg-gradient-to-r from-primaryBlue to-accentRed text-white px-10 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-primaryBlue/50"
+                >
+                  Download Catalog
+                  <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform duration-200" />
+                </a>
+              </div>
+            </div>
+
+            {/* Catalog Visual */}
+            <div className="relative flex justify-center lg:justify-end">
+              <div className="relative group">
+                {/* Main Catalog Image */}
+                <div className="bg-white rounded-3xl p-4 shadow-lg border border-gray-100 transform rotate-3 group-hover:rotate-6 transition-transform duration-300">
+                  <img 
+                    src="/catalog-card.png" 
+                    alt="Choice Foods Catalog"
+                    className="w-80 h-96 object-cover rounded-2xl"
+                  />
+                </div>
+
+                {/* Background Catalogs */}
+                <div className="absolute -top-4 -left-4 w-80 h-96 bg-gray-100/60 rounded-3xl transform -rotate-6 -z-10 border border-gray-200" />
+                <div className="absolute -top-8 -left-8 w-80 h-96 bg-gray-50/40 rounded-3xl transform -rotate-12 -z-20 border border-gray-100" />
+                
+                {/* Decorative element */}
+                <div className="absolute -bottom-6 -right-6 bg-gradient-to-r from-primaryBlue to-accentRed text-white p-6 rounded-2xl shadow-xl">
+                  <div className="text-2xl font-bold">1000+</div>
+                  <div className="text-sm">Products</div>
+                </div>
               </div>
             </div>
           </div>

@@ -436,6 +436,31 @@
     font-size: 1rem;
     line-height: 1.5;
   }
+  
+  /* Better mobile form inputs */
+  input, textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  /* Mobile hero optimizations */
+  .hero-mobile {
+    min-height: 70vh;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+  
+  /* Mobile card grid improvements */
+  .mobile-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  /* Better mobile spacing */
+  .mobile-spacing {
+    padding: 1rem;
+    margin: 0.5rem 0;
+  }
 }
 
 /* Tablet-specific adjustments */
@@ -470,5 +495,165 @@
   .touch-target {
     min-height: 48px;
     min-width: 48px;
+  }
+  
+  /* Better touch scrolling */
+  .touch-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* Additional mobile performance utilities */
+@layer utilities {
+  /* Mobile viewport optimizations */
+  .mobile-viewport {
+    width: 100vw;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* Mobile-first responsive text */
+  .text-mobile-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  .text-mobile-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+  
+  .text-mobile-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+  
+  /* Mobile spacing utilities */
+  .space-mobile-tight > * + * {
+    margin-top: 0.5rem;
+  }
+  
+  .space-mobile-normal > * + * {
+    margin-top: 1rem;
+  }
+  
+  .space-mobile-loose > * + * {
+    margin-top: 1.5rem;
+  }
+  
+  /* Mobile grid utilities */
+  .grid-mobile-1 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .grid-mobile-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  /* Mobile container utilities */
+  .container-mobile {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* Safe area utilities for notched devices */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Performance optimizations */
+  .will-change-transform {
+    will-change: transform;
+  }
+  
+  .will-change-scroll {
+    will-change: scroll-position;
+  }
+  
+  /* Mobile-optimized shadows */
+  .shadow-mobile {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  }
+  
+  .shadow-mobile-lg {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+}
+
+/* Mobile-first animations */
+@media (prefers-reduced-motion: no-preference) {
+  .mobile-animate-slide-up {
+    animation: mobileSlideUp 0.3s ease-out;
+  }
+  
+  .mobile-animate-fade-in {
+    animation: mobileFadeIn 0.4s ease-out;
+  }
+}
+
+@keyframes mobileSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mobileFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Accessibility improvements for mobile */
+@media (max-width: 768px) {
+  /* Ensure focus indicators are visible on mobile */
+  *:focus {
+    outline: 2px solid #2A4D7F;
+    outline-offset: 2px;
+  }
+  
+  /* Better skip links for mobile */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #2A4D7F;
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    z-index: 1000;
+  }
+  
+  .skip-link:focus {
+    top: 6px;
   }
 }

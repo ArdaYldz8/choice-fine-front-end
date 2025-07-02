@@ -10,12 +10,12 @@ export function Footer() {
         <div className="absolute bottom-10 right-10 w-80 h-80 bg-accentRed rounded-full blur-3xl"></div>
       </div>
       
-      <div className="relative container-custom py-12 sm:py-16 lg:py-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
-          {/* Company Info */}
-          <div className="space-y-6">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center shadow-lg p-2">
+      <div className="relative container-custom py-8 sm:py-12 md:py-16 lg:py-20 px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
+          {/* Company Info - Mobile optimized */}
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-xl flex items-center justify-center shadow-lg p-2">
                 <img 
                   src="/logo.png" 
                   alt="Choice Foods Logo" 
@@ -23,116 +23,116 @@ export function Footer() {
                 />
               </div>
               <div>
-                <div className="font-serif font-bold text-xl">Choice Foods</div>
-                <div className="text-sm text-gray-400">Since 2010</div>
+                <div className="font-serif font-bold text-lg sm:text-xl">Choice Foods</div>
+                <div className="text-xs sm:text-sm text-gray-400">Since 2010</div>
               </div>
             </div>
-            <p className="text-gray-300 text-sm leading-relaxed">
+            <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
               Your source for fine Mediterranean products. As a proud member of the North Carolina community since 2010, 
               we supply our clients with the very best in the Grocery Wholesaler industry.
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="group w-10 h-10 bg-gray-800 hover:bg-gradient-to-br hover:from-primaryBlue hover:to-accentRed rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg">
-                <Facebook className="h-5 w-5 text-gray-300 group-hover:text-white transition-colors" />
+            <div className="flex space-x-3 sm:space-x-4">
+              <a href="#" className="group w-8 h-8 sm:w-10 sm:h-10 bg-gray-800 hover:bg-gradient-to-br hover:from-primaryBlue hover:to-accentRed rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg touch-target">
+                <Facebook className="h-4 w-4 sm:h-5 sm:w-5 text-gray-300 group-hover:text-white transition-colors" />
               </a>
-              <a href="#" className="group w-10 h-10 bg-gray-800 hover:bg-gradient-to-br hover:from-primaryBlue hover:to-accentRed rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg">
-                <Instagram className="h-5 w-5 text-gray-300 group-hover:text-white transition-colors" />
+              <a href="#" className="group w-8 h-8 sm:w-10 sm:h-10 bg-gray-800 hover:bg-gradient-to-br hover:from-primaryBlue hover:to-accentRed rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg touch-target">
+                <Instagram className="h-4 w-4 sm:h-5 sm:w-5 text-gray-300 group-hover:text-white transition-colors" />
               </a>
-              <a href="#" className="group w-10 h-10 bg-gray-800 hover:bg-gradient-to-br hover:from-primaryBlue hover:to-accentRed rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg">
-                <Linkedin className="h-5 w-5 text-gray-300 group-hover:text-white transition-colors" />
+              <a href="#" className="group w-8 h-8 sm:w-10 sm:h-10 bg-gray-800 hover:bg-gradient-to-br hover:from-primaryBlue hover:to-accentRed rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg touch-target">
+                <Linkedin className="h-4 w-4 sm:h-5 sm:w-5 text-gray-300 group-hover:text-white transition-colors" />
               </a>
             </div>
           </div>
 
-          {/* Product Categories */}
-          <div className="space-y-6">
-            <h3 className="font-serif font-bold text-xl mb-6 text-white">Our Products</h3>
-            <ul className="space-y-3">
+          {/* Product Categories - Mobile optimized */}
+          <div className="space-y-4 sm:space-y-6">
+            <h3 className="font-serif font-bold text-lg sm:text-xl mb-4 sm:mb-6 text-white">Our Products</h3>
+            <ul className="space-y-2 sm:space-y-3">
               <li className="group flex items-center">
-                <ArrowRight className="h-3 w-3 text-primaryBlue mr-2 group-hover:translate-x-1 transition-transform duration-200" />
-                <span className="text-gray-300 group-hover:text-white transition-colors duration-200">Premium Grains</span>
+                <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primaryBlue mr-2 group-hover:translate-x-1 transition-transform duration-200" />
+                <span className="text-gray-300 group-hover:text-white transition-colors duration-200 text-xs sm:text-sm">Premium Grains</span>
               </li>
               <li className="group flex items-center">
-                <ArrowRight className="h-3 w-3 text-primaryBlue mr-2 group-hover:translate-x-1 transition-transform duration-200" />
-                <span className="text-gray-300 group-hover:text-white transition-colors duration-200">Frozen Vegetables</span>
+                <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primaryBlue mr-2 group-hover:translate-x-1 transition-transform duration-200" />
+                <span className="text-gray-300 group-hover:text-white transition-colors duration-200 text-xs sm:text-sm">Frozen Vegetables</span>
               </li>
               <li className="group flex items-center">
-                <ArrowRight className="h-3 w-3 text-primaryBlue mr-2 group-hover:translate-x-1 transition-transform duration-200" />
-                <span className="text-gray-300 group-hover:text-white transition-colors duration-200">Imported Beverages</span>
+                <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primaryBlue mr-2 group-hover:translate-x-1 transition-transform duration-200" />
+                <span className="text-gray-300 group-hover:text-white transition-colors duration-200 text-xs sm:text-sm">Imported Beverages</span>
               </li>
               <li className="group flex items-center">
-                <ArrowRight className="h-3 w-3 text-primaryBlue mr-2 group-hover:translate-x-1 transition-transform duration-200" />
-                <span className="text-gray-300 group-hover:text-white transition-colors duration-200">European Wafers & Cakes</span>
+                <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primaryBlue mr-2 group-hover:translate-x-1 transition-transform duration-200" />
+                <span className="text-gray-300 group-hover:text-white transition-colors duration-200 text-xs sm:text-sm">European Wafers & Cakes</span>
               </li>
               <li className="group flex items-center">
-                <ArrowRight className="h-3 w-3 text-primaryBlue mr-2 group-hover:translate-x-1 transition-transform duration-200" />
-                <span className="text-gray-300 group-hover:text-white transition-colors duration-200">Dairy Products</span>
+                <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primaryBlue mr-2 group-hover:translate-x-1 transition-transform duration-200" />
+                <span className="text-gray-300 group-hover:text-white transition-colors duration-200 text-xs sm:text-sm">Dairy Products</span>
               </li>
             </ul>
-            <div className="pt-2 p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+            <div className="pt-2 p-2 sm:p-3 bg-gray-800/50 rounded-lg border border-gray-700">
               <span className="text-primaryBlue text-xs">*Member login required to view catalog</span>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-6">
-            <h3 className="font-serif font-bold text-xl mb-6 text-white">Quick Links</h3>
-            <ul className="space-y-3">
+          {/* Quick Links - Mobile optimized */}
+          <div className="space-y-4 sm:space-y-6">
+            <h3 className="font-serif font-bold text-lg sm:text-xl mb-4 sm:mb-6 text-white">Quick Links</h3>
+            <ul className="space-y-2 sm:space-y-3">
               <li>
-                <Link to="/" className="group flex items-center text-gray-300 hover:text-white transition-all duration-200">
-                  <ArrowRight className="h-3 w-3 text-accentRed mr-2 group-hover:translate-x-1 transition-transform duration-200" />
-                  <span className="group-hover:underline">Home</span>
+                <Link to="/" className="group flex items-center text-gray-300 hover:text-white transition-all duration-200 touch-target">
+                  <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-accentRed mr-2 group-hover:translate-x-1 transition-transform duration-200" />
+                  <span className="group-hover:underline text-xs sm:text-sm">Home</span>
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="group flex items-center text-gray-300 hover:text-white transition-all duration-200">
-                  <ArrowRight className="h-3 w-3 text-accentRed mr-2 group-hover:translate-x-1 transition-transform duration-200" />
-                  <span className="group-hover:underline">Contact</span>
+                <Link to="/contact" className="group flex items-center text-gray-300 hover:text-white transition-all duration-200 touch-target">
+                  <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-accentRed mr-2 group-hover:translate-x-1 transition-transform duration-200" />
+                  <span className="group-hover:underline text-xs sm:text-sm">Contact</span>
                 </Link>
               </li>
               <li>
-                <Link to="/login" className="group flex items-center text-gray-300 hover:text-white transition-all duration-200">
-                  <ArrowRight className="h-3 w-3 text-accentRed mr-2 group-hover:translate-x-1 transition-transform duration-200" />
-                  <span className="group-hover:underline">Member Login</span>
+                <Link to="/login" className="group flex items-center text-gray-300 hover:text-white transition-all duration-200 touch-target">
+                  <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-accentRed mr-2 group-hover:translate-x-1 transition-transform duration-200" />
+                  <span className="group-hover:underline text-xs sm:text-sm">Member Login</span>
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Contact Info */}
-          <div className="space-y-6">
-            <h3 className="font-serif font-bold text-xl mb-6 text-white">Contact Us</h3>
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3 p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors duration-200">
-                <div className="w-8 h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center flex-shrink-0">
-                  <MapPin className="h-4 w-4 text-white" />
+          {/* Contact Info - Mobile optimized */}
+          <div className="space-y-4 sm:space-y-6">
+            <h3 className="font-serif font-bold text-lg sm:text-xl mb-4 sm:mb-6 text-white">Contact Us</h3>
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors duration-200">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center flex-shrink-0">
+                  <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                 </div>
-                <div className="text-gray-300 text-sm">
+                <div className="text-gray-300 text-xs sm:text-sm">
                   409 Prospect St.<br />
                   High Point, NC 27260<br />
                   United States
                 </div>
               </div>
               
-              <div className="flex items-center space-x-3 p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors duration-200">
-                <div className="w-8 h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Phone className="h-4 w-4 text-white" />
+              <div className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors duration-200">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                 </div>
-                <a href="tel:336-782-8283" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <a href="tel:336-782-8283" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm touch-target">
                   336-782-8283
                 </a>
               </div>
               
-              <div className="flex items-center space-x-3 p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors duration-200">
-                <div className="w-8 h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Mail className="h-4 w-4 text-white" />
+              <div className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors duration-200">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Mail className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                 </div>
-                <a href="mailto:choicefoods@hotmail.com" className="text-gray-300 hover:text-white transition-colors text-sm break-all">
+                <a href="mailto:choicefoods@hotmail.com" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm break-all touch-target">
                   choicefoods@hotmail.com
                 </a>
               </div>
               
-              <div className="p-3 bg-gradient-to-r from-primaryBlue/20 to-accentRed/20 rounded-lg border border-primaryBlue/30">
+              <div className="p-2 sm:p-3 bg-gradient-to-r from-primaryBlue/20 to-accentRed/20 rounded-lg border border-primaryBlue/30">
                 <div className="text-gray-300 text-xs">
                   <strong className="text-white">Hours:</strong> Monday - Friday, 8:00 AM - 4:00 PM
                 </div>
@@ -142,12 +142,12 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Bottom bar */}
+      {/* Bottom bar - Mobile optimized */}
       <div className="border-t border-gray-700 bg-gray-900/50 backdrop-blur-sm">
-        <div className="container-custom py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
+        <div className="container-custom py-4 sm:py-6 px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center text-xs sm:text-sm text-gray-400 gap-3 sm:gap-0">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white rounded-lg flex items-center justify-center p-1">
                 <img 
                   src="/logo.png" 
                   alt="Choice Foods" 
@@ -156,10 +156,10 @@ export function Footer() {
               </div>
               <span>© 2025 Choice Foods. All rights reserved.</span>
             </div>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="hover:text-white transition-colors duration-200 hover:underline">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors duration-200 hover:underline">Terms of Service</a>
-              <a href="#" className="hover:text-white transition-colors duration-200 hover:underline">Accessibility</a>
+            <div className="flex space-x-4 sm:space-x-6">
+              <a href="#" className="hover:text-white transition-colors duration-200 hover:underline touch-target">Privacy Policy</a>
+              <a href="#" className="hover:text-white transition-colors duration-200 hover:underline touch-target">Terms of Service</a>
+              <a href="#" className="hover:text-white transition-colors duration-200 hover:underline touch-target">Accessibility</a>
             </div>
           </div>
         </div>
