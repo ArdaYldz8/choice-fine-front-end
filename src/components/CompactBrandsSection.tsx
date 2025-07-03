@@ -25,10 +25,10 @@ const CompactBrandsSection: React.FC = () => {
   };
 
   return (
-    <section className="py-8 sm:py-12 bg-white border-t border-gray-100">
+    <section className="py-4 sm:py-8 md:py-12 bg-white border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header - Mobile optimized */}
-        <div className="text-center mb-6 sm:mb-8">
+        <div className="text-center mb-4 sm:mb-6 md:mb-8">
           <p className="text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">
             Trusted Partners
           </p>
@@ -156,7 +156,7 @@ const CompactBrandsSection: React.FC = () => {
         </div>
 
         {/* Bottom text - Mobile responsive */}
-        <div className="text-center mt-4 sm:mt-6">
+        <div className="text-center mt-3 sm:mt-4 md:mt-6">
           <p className="text-xs text-gray-400">
             <span className="hidden sm:inline">Proudly serving {allBrands.length} premium brands across North Carolina</span>
             <span className="sm:hidden">{allBrands.length} premium brands in NC</span>

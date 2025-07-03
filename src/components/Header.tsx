@@ -29,6 +29,7 @@ export function Header() {
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [lastProfileCheck, setLastProfileCheck] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -161,6 +162,17 @@ export function Header() {
     }
   }, [user, isLoading, forceRefreshProfile]);
 
+  // Handle scroll event for navbar transparency
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 50); // Transparent after 50px scroll
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Close user menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -210,28 +222,12 @@ export function Header() {
   }, []);
 
   return (
-    <header className="bg-white/60 backdrop-blur-lg shadow-sm fixed top-0 left-0 right-0 w-full z-50">
-      {/* Top bar - mobile adapted */}
-      <div className="bg-neutralBlack/90 backdrop-blur-md text-white py-1.5 sm:py-2">
-        <div className="container-custom flex justify-between items-center text-xs sm:text-sm">
-          <div className="flex items-center space-x-2 sm:space-x-6">
-            <a href="tel:336-782-8283" className="flex items-center space-x-1 sm:space-x-2 hover:text-accentRed transition-colors">
-              <Phone className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden xs:inline">336-782-8283</span>
-              <span className="xs:hidden">Call</span>
-            </a>
-            <a href="mailto:choicefoods@hotmail.com" className="hidden sm:flex items-center space-x-2 hover:text-accentRed transition-colors">
-              <Mail className="h-4 w-4" />
-              <span>choicefoods@hotmail.com</span>
-            </a>
-          </div>
-          <div className="text-xs">
-            <span className="hidden sm:inline">Hours: M-F 8am-4pm</span>
-            <span className="sm:hidden">M-F 8-4</span>
-          </div>
-        </div>
-      </div>
-
+    <header className={cn(
+      "shadow-sm fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300",
+      isScrolled 
+        ? "bg-white/60 backdrop-blur-lg" 
+        : "bg-white"
+    )}>
       {/* Main navigation */}
       <nav className="container-custom py-2 sm:py-4">
         <div className="flex items-center justify-between">

@@ -104,7 +104,7 @@ export default function Index() {
       </section>
 
       {/* Stats Counter Section - Mobile optimized */}
-      <section id="stats-section" className="bg-gradient-to-br from-white via-lightGrey to-white py-12 sm:py-16 md:py-20 lg:py-24">
+      <section id="stats-section" className="bg-gradient-to-br from-white via-lightGrey to-white py-6 sm:py-12 md:py-16 lg:py-20">
         <div className="container-custom px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             <div className="bg-white rounded-2xl p-6 sm:p-8 text-center shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
@@ -133,9 +133,9 @@ export default function Index() {
       </section>
 
       {/* Our Premium Products Section - Mobile optimized */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24">
+      <section className="py-6 sm:py-12 md:py-16 lg:py-20">
         <div className="container-custom px-4">
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-6 sm:mb-8 md:mb-12">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-neutralBlack mb-4 sm:mb-6">
               Our Premium Products
             </h2>
@@ -232,13 +232,13 @@ export default function Index() {
       <CompactBrandsSection />
 
       {/* Catalog Download Section */}
-      <section className="bg-gradient-to-br from-lightGrey via-white to-lightGrey section-padding">
+      <section className="bg-gradient-to-br from-lightGrey via-white to-lightGrey py-6 sm:py-12 md:py-16 lg:py-20">
         <div className="container-custom">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
             {/* Content */}
-            <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-lg border border-gray-100 space-y-8">
+            <div className="bg-white rounded-3xl p-4 sm:p-6 lg:p-8 xl:p-10 shadow-lg border border-gray-100 space-y-4 sm:space-y-6 md:space-y-8">
               <div>
-                <h2 className="text-4xl md:text-5xl font-serif font-bold text-neutralBlack mb-6">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-neutralBlack mb-3 sm:mb-4 md:mb-6">
                   Product-Based Catalogs
                 </h2>
                 <p className="text-xl text-gray-600 leading-relaxed">
@@ -286,11 +286,11 @@ export default function Index() {
       </section>
 
       {/* About Us Section */}
-      <section className="bg-gradient-to-br from-lightGrey via-white to-lightGrey section-padding">
+      <section className="bg-gradient-to-br from-lightGrey via-white to-lightGrey py-6 sm:py-12 md:py-16 lg:py-20">
         <div className="container-custom">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-lg border border-gray-100">
-              <h2 className="text-4xl md:text-5xl font-serif font-bold text-neutralBlack mb-8">
+          <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
+            <div className="bg-white rounded-3xl p-4 sm:p-6 lg:p-8 xl:p-10 shadow-lg border border-gray-100">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-neutralBlack mb-4 sm:mb-6 md:mb-8">
                 About Us
               </h2>
               <div className="space-y-6">
