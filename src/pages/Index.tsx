@@ -72,32 +72,32 @@ export default function Index() {
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-primaryBlue/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
         </div>
         
-        {/* Content - Clean and Elegant - Mobile Optimized */}
-        <div className="relative z-10 text-center text-white space-y-6 sm:space-y-8 container-custom px-4">
+        {/* Content - Clean and Elegant - Mobile Optimized with Minimum Spacing */}
+        <div className="relative z-10 text-center text-white space-y-3 sm:space-y-8 container-custom px-4">
           {/* Hero Logo - Responsive sizing */}
           <div className="flex justify-center animate-fade-in">
             <img 
               src="/logo.png" 
               alt="Choice Foods Logo" 
-              className="h-32 sm:h-40 md:h-48 lg:h-64 xl:h-80 w-auto object-contain filter brightness-110 drop-shadow-2xl"
+              className="h-24 sm:h-40 md:h-48 lg:h-64 xl:h-80 w-auto object-contain filter brightness-110 drop-shadow-2xl"
             />
           </div>
 
           {/* Simple Elegant Slogan - Mobile responsive */}
           <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-light text-white/95 max-w-4xl mx-auto leading-relaxed px-4">
+            <p className="text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-light text-white/95 max-w-4xl mx-auto leading-relaxed px-4">
               North Carolina's Premier Mediterranean Grocery Wholesaler
             </p>
           </div>
 
           {/* Single CTA - Mobile optimized */}
-          <div className="pt-4 sm:pt-8 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <div className="pt-2 sm:pt-8 animate-fade-in" style={{ animationDelay: '0.6s' }}>
             <Link 
               to="/catalog" 
-              className="group inline-flex items-center justify-center bg-white text-neutralBlack px-8 sm:px-12 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/50 touch-target"
+              className="group inline-flex items-center justify-center bg-white text-neutralBlack px-6 sm:px-12 py-2.5 sm:py-4 rounded-xl font-semibold text-sm sm:text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/50 touch-target"
             >
               Explore Our Products
-              <ArrowRight className="ml-2 sm:ml-3 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform duration-200" />
+              <ArrowRight className="ml-2 sm:ml-3 h-3 w-3 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform duration-200" />
             </Link>
           </div>
         </div>
@@ -234,7 +234,36 @@ export default function Index() {
       {/* Catalog Download Section */}
       <section className="bg-gradient-to-br from-lightGrey via-white to-lightGrey py-6 sm:py-12 md:py-16 lg:py-20">
         <div className="container-custom">
-          <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
+          {/* Mobile-first layout: Simple catalog image and download button */}
+          <div className="lg:hidden">
+            <div className="text-center space-y-6">
+              {/* Catalog Image */}
+              <div className="flex justify-center">
+                <div className="bg-white rounded-2xl p-3 shadow-lg border border-gray-100">
+                  <img 
+                    src="/catalog-card.png" 
+                    alt="Choice Foods Catalog"
+                    className="w-64 h-80 object-cover rounded-xl"
+                  />
+                </div>
+              </div>
+              
+              {/* Download Button */}
+              <div>
+                <a 
+                  href="/Choice Foods Catalog.pdf"
+                  download="Choice Foods Catalog.pdf"
+                  className="group inline-flex items-center justify-center bg-gradient-to-r from-primaryBlue to-accentRed text-white px-8 py-3 rounded-xl font-semibold text-base transition-all duration-300 hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-primaryBlue/50"
+                >
+                  Download Catalog
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop layout: Original two-column design */}
+          <div className="hidden lg:grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
             {/* Content */}
             <div className="bg-white rounded-3xl p-4 sm:p-6 lg:p-8 xl:p-10 shadow-lg border border-gray-100 space-y-4 sm:space-y-6 md:space-y-8">
               <div>

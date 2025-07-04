@@ -47,6 +47,7 @@ export function useProducts(options: {
   pageSize?: number;
   category?: string;
   searchTerm?: string;
+  brand?: string;
   sortBy?: string;
   enabled?: boolean;
 } = {}) {
@@ -54,6 +55,7 @@ export function useProducts(options: {
     pageSize = 50, // Virtual scrolling-friendly page size
     category,
     searchTerm,
+    brand,
     sortBy = 'name',
     enabled = true
   } = options;
@@ -83,14 +85,20 @@ export function useProducts(options: {
         setError(null);
       }
       
-      // Try cache first for fast loading
-      const cacheResult = await cacheUtils.get<Product[]>('products', cacheKey);
-      if (cacheResult && !append) {
-        console.log('📦 Products loaded from cache');
-        setProducts(cacheResult);
-        setLoading(false);
-        performanceMonitor.endTiming('fetchProducts');
-        return;
+      // Try cache first for fast loading (but skip cache for large pageSize to get fresh data)
+      if (pageSize < 1000) {
+        const cacheResult = await cacheUtils.get<Product[]>('products', cacheKey);
+        if (cacheResult && !append) {
+          console.log('📦 Products loaded from cache');
+          setProducts(cacheResult);
+          setLoading(false);
+          performanceMonitor.endTiming('fetchProducts');
+          return;
+        }
+      } else {
+        console.log('🔄 Skipping cache for large pageSize to get fresh data');
+        // Clear any existing cache for large requests to ensure fresh data
+        await cacheUtils.clear('products');
       }
 
       setUsingMockData(false);
@@ -107,26 +115,113 @@ export function useProducts(options: {
       }
 
       // Add pagination and ordering
-      query = query
-        .order(sortBy)
-        .range(page * pageSize, (page + 1) * pageSize - 1);
+      query = query.order(sortBy);
+      
+      let allData: any[] = [];
+      
+      // Only apply range if pageSize is reasonable (not trying to get all products)
+      if (pageSize < 1000) {
+        query = query.range(page * pageSize, (page + 1) * pageSize - 1);
+        
+        // Execute query with timeout
+        const queryPromise = query;
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Query timeout - database might be slow')), 15000);
+        });
 
-      // Execute query with timeout
-      const queryPromise = query;
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Query timeout - database might be slow')), 15000);
-      });
+        const { data, error: queryError } = await Promise.race([queryPromise, timeoutPromise]) as any;
 
-      const { data, error: queryError } = await Promise.race([queryPromise, timeoutPromise]) as any;
-
-      if (queryError) {
-        console.error('Supabase error:', queryError);
-        throw queryError;
+        if (queryError) {
+          console.error('Supabase error:', queryError);
+          throw queryError;
+        }
+        
+        allData = data || [];
+      } else {
+        // For large pageSize (getting all products), use chunked fetching approach
+        console.log(`🔄 Fetching all products (target: ${pageSize}, category: ${category || 'All Categories'})`);
+        
+        // First, get total count
+        let countQuery = supabase
+          .from('products')
+          .select('id', { count: 'exact', head: true })
+          .eq('active', true);
+        
+        if (category && category !== 'All Categories') {
+          countQuery = countQuery.eq('category', category);
+        }
+        
+        const { count, error: countError } = await countQuery;
+        
+        if (countError) {
+          console.error('Count query error:', countError);
+          throw countError;
+        }
+        
+        console.log(`📊 Total products in database: ${count}`);
+        console.log(`🎯 Attempting to fetch all ${count} products using chunked approach...`);
+        
+        // Use chunked fetching to bypass PostgREST's row limit
+        let batchStart = 0;
+        const batchSize = 1000; // PostgREST's maximum per request
+        let hasMore = true;
+        
+        while (hasMore && allData.length < (count || 5000)) {
+          let batchQuery = supabase
+            .from('products')
+            .select('id, name, description, price, category, sku, active, quantity_on_hand, image_url, created_at, updated_at')
+            .eq('active', true);
+          
+          // Add category filter to batch query
+          if (category && category !== 'All Categories') {
+            batchQuery = batchQuery.eq('category', category);
+          }
+          
+          batchQuery = batchQuery
+            .order(sortBy)
+            .range(batchStart, batchStart + batchSize - 1);
+          
+          const { data: batchData, error: batchError } = await batchQuery;
+          
+          if (batchError) {
+            console.error('Supabase batch error:', batchError);
+            throw batchError;
+          }
+          
+          if (batchData && batchData.length > 0) {
+            allData = [...allData, ...batchData];
+            console.log(`📦 Batch ${Math.floor(batchStart / batchSize) + 1}: ${batchData.length} products (total: ${allData.length}/${count})`);
+            
+            // Check if we got less than batchSize, meaning we've reached the end
+            if (batchData.length < batchSize) {
+              console.log(`✅ Reached end of data - got ${batchData.length} products (less than batch size ${batchSize})`);
+              hasMore = false;
+            } else {
+              batchStart += batchSize;
+              console.log(`➡️ Moving to next batch starting at ${batchStart}`);
+            }
+          } else {
+            console.log(`❌ No data in batch - ending fetch`);
+            hasMore = false;
+          }
+          
+          // Safety check to prevent infinite loops
+          if (batchStart >= (count || 5000)) {
+            console.log(`🛑 Safety check triggered - stopping at ${batchStart} (count: ${count})`);
+            hasMore = false;
+          }
+        }
+        
+        console.log(`🎉 Chunked fetch complete: ${allData.length} products fetched (expected: ${count})`);
+        
+        if (allData.length < (count || 0)) {
+          console.log(`⚠️ Warning: Fetched ${allData.length} products but expected ${count}`);
+        }
       }
       
-      console.log(`✅ Fetched ${data?.length || 0} products from database`);
+      console.log(`✅ Fetched ${allData.length} products from database (pageSize: ${pageSize})`);
       
-      const newProducts = data || [];
+      const newProducts = allData;
       
       // Update state
       if (append) {
@@ -189,15 +284,27 @@ export function useProducts(options: {
     fetchProducts(0, false);
   }, [category, sortBy, enabled]);
 
-  // Memoized filtered products for search
+  // Memoized filtered products for search and brand
   const filteredProducts = useMemo(() => {
-    if (!searchTerm) return products;
+    let filtered = products;
     
-    return products.filter(product => 
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (product.description?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-    );
-  }, [products, searchTerm]);
+    // Apply brand filter
+    if (brand && brand !== 'All Brands') {
+      filtered = filtered.filter(product => 
+        product.name.toLowerCase().includes(brand.toLowerCase())
+      );
+    }
+    
+    // Apply search term filter
+    if (searchTerm) {
+      filtered = filtered.filter(product => 
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (product.description?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    return filtered;
+  }, [products, searchTerm, brand]);
 
   // CRUD operations with cache invalidation
   const addProduct = useCallback(async (product: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {

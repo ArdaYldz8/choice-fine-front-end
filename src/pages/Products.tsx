@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Search, Filter, Grid, List, Lock, ShoppingCart, Package } from "lucide-react";
 import { supabase, getCurrentUserProfile, type Product } from "../lib/supabase";
 import { useCart } from "../contexts/CartContext";
@@ -7,6 +7,32 @@ import { useProducts } from "../hooks/useProducts";
 import { useDebounce } from "../hooks/use-mobile";
 import EnhancedProductCard from "../components/EnhancedProductCard";
 import QuickViewModal from "../components/QuickViewModal";
+
+// CSV'den çıkarılan gerçek brand listesi
+const csvBrands = [
+  "AAHU BARAH", "ADONIS", "AHMAD", "AL AFIA", "AL AMEED", "AL GHAZAL", "AL GHAZALEEN", 
+  "AL HALOUB", "AL KAMARIA", "AL KANATER", "AL KBOUS", "AL KHAR", "AL MOMTAZ", "AL NABEEL", 
+  "AL QASR", "AL RAGAWI", "AL REEF", "AL SAFA", "AL SAMIR", "AL SHARK", "AL SHIFA", 
+  "AL SUHAGY", "AL WAZAH", "ALI BABA", "ALREEF", "ALYA", "AMAN", "AMMAR", "ANGEL'S BAKERY", 
+  "ANTEBELLA", "APOLLO", "ARA-Z", "ARZ", "ARZ LABNE", "ARZ PLAIN", "ASEEL", "ASHOUR", 
+  "ATHENA", "BALCA", "BALCONI", "BARAKA", "BARBICAN", "BARMAKI", "BAROODY", "BASAK", 
+  "BASBOSA", "BBQ GRILL", "BBQ SKEWER", "BEIRUT", "BEYPAZARI", "BON-O-BON", "BYBLOS", 
+  "CA GARDEN", "CADBURY", "CAYKUR", "CORTAS", "CRUNCHY NUTS", "DAIRYLAND", "DAWN", 
+  "DETTOL", "DO GHAZAL", "DRINK PALESTINA", "EL AROSA", "EL BAWADY", "EL DOHA", "ELLEDI", 
+  "FERRERO", "FERSAN", "FIDE", "FINE", "FISH AVENUE", "GALAXY", "GHARIBIAN", "GREEN LAND", 
+  "GREENLAND", "GULLON", "HALAYEB", "HALWANI", "HANA", "HARIBO", "HEBA'S", "ICIM", 
+  "INDOMIE", "JAMEEDNA", "KAROUN", "KDD", "KINDER", "KIRI", "KOMAGENE", "KRINOS", 
+  "LIPTON", "LOACKER", "MAGGI", "MAHMOOD", "MARCA", "MARMARABIRLIK", "MARMIA", "MAROLIVO", 
+  "MCVITIES", "MEHMET EFENDI", "MERVE", "MID EAST", "MIDAMAR", "MIRA", "MIRINDA", "MODA", 
+  "MONTANA", "MOSUL", "MOUSSY", "MUKALLA", "NAJJAR", "NAZU'S", "NESCAFE", "NESTLE", 
+  "NIDO", "NOON", "NOUR", "ONCU", "ORLANDO", "OTHER LENTIL", "PASABAHCE", "PINDOS", 
+  "PUCK", "REEF", "RODOPA", "SADAF", "SARIKIZ", "SCHWEPPES", "SHANI", "SPYSI", "SUHAGY", 
+  "TAMEK", "TAYAS", "TEHMAR", "TOBLERONE", "TRIA", "TYJ SPRING", "ULKER", "ULUDAG", 
+  "VALBRESO", "VIMTO"
+];
+
+// Get unique brand names for filter
+const brandNames = ["All Brands", ...csvBrands.sort()];
 
 // Real categories from our product data
 const categories = [
@@ -32,6 +58,7 @@ const categories = [
   "MISC",
   "NUTS",
   "OLIVES",
+  "OTHERS",
   "PASTA",
   "PICKLES",
   "READY TO EAT",
@@ -58,6 +85,7 @@ const getCategoryImage = (category: string) => {
     'FROZEN': 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     'GRAINS': 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     'NUTS': 'https://images.unsplash.com/photo-1508747792480-cca4d777b15b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'OTHERS': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     'PASTA': 'https://images.unsplash.com/photo-1551892589-865f69869476?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     'SPICES': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     'TEA': 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
@@ -69,8 +97,10 @@ const getCategoryImage = (category: string) => {
 };
 
 export default function Products() {
+  const [searchParams] = useSearchParams();
   const [searchInput, setSearchInput] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [selectedBrand, setSelectedBrand] = useState("All Brands");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -80,20 +110,67 @@ export default function Products() {
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const { addItem, addItemWithQuantity, openCart } = useCart();
   
+  // Get brand from URL parameters
+  const brandParam = searchParams.get('brand');
+  
   // Debounce search input to prevent API calls on every keystroke
   const debouncedSearchTerm = useDebounce(searchInput, 500);
   
+  // Determine active brand - prefer URL parameter, then selected brand
+  const activeBrand = brandParam || (selectedBrand !== "All Brands" ? selectedBrand : "");
+  
+  // Use search term for text search, brand filtering will be handled separately
+  const effectiveSearchTerm = debouncedSearchTerm;
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 35;
+
   // Use the optimized products hook with filters
   const { 
-    products, 
+    products: allProducts, 
     loading: productsLoading, 
     error: productsError
   } = useProducts({
     category: selectedCategory,
-    searchTerm: debouncedSearchTerm,
-    pageSize: 30,
+    searchTerm: effectiveSearchTerm,
+    brand: activeBrand,
+    pageSize: 2000, // Get all products (we have 1041 products), we'll handle pagination client-side
     enabled: !!profile?.approved
   });
+
+  // Debug: Log product count
+  useEffect(() => {
+    console.log(`🔍 Products loaded: ${allProducts.length} total products`);
+  }, [allProducts.length]);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(allProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const products = allProducts.slice(startIndex, endIndex);
+
+  // Handle brand parameter from URL
+  useEffect(() => {
+    if (brandParam) {
+      // Clear search input when brand is selected from URL
+      setSearchInput("");
+      // Set the brand in dropdown if it exists in our brand list
+      if (brandNames.includes(brandParam) && selectedBrand !== brandParam) {
+        setSelectedBrand(brandParam);
+      }
+    }
+  }, [brandParam]);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, selectedBrand, effectiveSearchTerm]);
+
+  // Scroll to top when page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
 
   // Check auth status
   useEffect(() => {
@@ -245,14 +322,25 @@ export default function Products() {
             </div>
             
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold mb-4 sm:mb-6 leading-tight">
-              Our <span className="text-accentRed">Products</span>
+              {brandParam ? (
+                <>
+                  <span className="text-accentRed">{brandParam}</span> Products
+                </>
+              ) : (
+                <>
+                  Our <span className="text-accentRed">Products</span>
+                </>
+              )}
             </h1>
             
             <p className="text-base sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 leading-relaxed max-w-3xl mx-auto px-4">
-              {!user || !profile?.approved 
-                ? "Sign in to access our complete product catalog with pricing and ordering capabilities."
-                : "Browse our extensive collection of premium Mediterranean and Middle Eastern products."
-              }
+              {brandParam ? (
+                `Explore all ${brandParam} products in our catalog. ${!user || !profile?.approved ? 'Sign in to see pricing and place orders.' : 'Browse and add items to your cart.'}`
+              ) : (
+                !user || !profile?.approved 
+                  ? "Sign in to access our complete product catalog with pricing and ordering capabilities."
+                  : "Browse our extensive collection of premium Mediterranean and Middle Eastern products."
+              )}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
@@ -355,7 +443,7 @@ export default function Products() {
                 </div>
 
                 {/* Category Filter - Mobile optimized */}
-                <div className="mb-6 sm:mb-8">
+                <div className="mb-4 sm:mb-6">
                   <label className="block text-sm font-semibold text-neutralBlack mb-2 sm:mb-3">Category</label>
                   <select
                     value={selectedCategory}
@@ -368,10 +456,37 @@ export default function Products() {
                   </select>
                 </div>
 
+                {/* Brand Filter - Mobile optimized */}
+                <div className="mb-6 sm:mb-8">
+                  <label className="block text-sm font-semibold text-neutralBlack mb-2 sm:mb-3">Brand</label>
+                  <select
+                    value={selectedBrand}
+                    onChange={(e) => {
+                      const newBrand = e.target.value;
+                      setSelectedBrand(newBrand);
+                      // Update URL when brand is changed
+                      if (newBrand !== "All Brands") {
+                        window.history.replaceState({}, '', `/products?brand=${encodeURIComponent(newBrand)}`);
+                      } else {
+                        window.history.replaceState({}, '', '/products');
+                      }
+                    }}
+                    className="w-full p-3 sm:p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primaryBlue/20 focus:border-primaryBlue bg-white/50 transition-all duration-300 text-sm sm:text-base"
+                  >
+                    {brandNames.map((brand) => (
+                      <option key={brand} value={brand}>{brand}</option>
+                    ))}
+                  </select>
+                </div>
+
                 <button
                   onClick={() => {
                     setSearchInput("");
                     setSelectedCategory("All Categories");
+                    setSelectedBrand("All Brands");
+                    setCurrentPage(1);
+                    // Clear brand parameter from URL
+                    window.history.replaceState({}, '', '/products');
                   }}
                   className="w-full py-3 px-4 sm:px-6 border-2 border-gray-200 text-gray-700 rounded-xl font-semibold transition-all duration-300 hover:border-primaryBlue hover:text-primaryBlue hover:bg-primaryBlue/5 touch-target"
                 >
@@ -395,7 +510,7 @@ export default function Products() {
                     Filters
                   </button>
                   <span className="text-gray-600 font-medium text-sm sm:text-base">
-                    {products.length} products found
+                    Showing {startIndex + 1}-{Math.min(endIndex, allProducts.length)} of {allProducts.length} {activeBrand ? `${activeBrand} ` : ''}products
                   </span>
                 </div>
                 
@@ -500,6 +615,67 @@ export default function Products() {
                         viewMode="list"
                       />
                     ))}
+                  </div>
+                )}
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center space-x-2 py-8">
+                    {/* Previous button */}
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                        currentPage === 1
+                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      Previous
+                    </button>
+
+                    {/* Page numbers */}
+                    <div className="flex space-x-1">
+                      {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 7) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 4) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 3) {
+                          pageNum = totalPages - 6 + i;
+                        } else {
+                          pageNum = currentPage - 3 + i;
+                        }
+
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => setCurrentPage(pageNum)}
+                            className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                              currentPage === pageNum
+                                ? 'bg-primaryBlue text-white'
+                                : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Next button */}
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                        currentPage === totalPages
+                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      Next
+                    </button>
                   </div>
                 )}
 
