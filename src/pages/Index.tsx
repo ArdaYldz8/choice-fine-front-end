@@ -126,7 +126,7 @@ export default function Index() {
                 {counters.years}
               </div>
               <div className="text-lg sm:text-xl md:text-2xl font-semibold text-neutralBlack mb-2 sm:mb-3">Years of Excellence</div>
-              <p className="text-gray-600 leading-relaxed text-sm sm:text-base">Serving North Carolina with dedication since 2009</p>
+              <p className="text-gray-600 leading-relaxed text-sm sm:text-base">Serving North Carolina with dedication since 2010</p>
             </div>
           </div>
         </div>
@@ -324,7 +324,7 @@ export default function Index() {
               </h2>
               <div className="space-y-6">
                 <p className="text-lg text-gray-600 leading-relaxed">
-                  Ever since 2009, the dedicated team of professionals at Choice Foods have been working to supply our customers with the very best quality food products and services.
+                  Ever since 2010, the dedicated team of professionals at Choice Foods have been working to supply our customers with the very best quality food products and services.
                 </p>
                 <p className="text-lg text-gray-600 leading-relaxed">
                   You can count on us to deliver your order promptly with no hassles and at a fair and competitive price. We believe that the key to a healthy and balanced lifestyle starts with a person's diet, which is why we only supply our clients with the very best products available in the market.
