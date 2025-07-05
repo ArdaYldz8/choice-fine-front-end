@@ -73,25 +73,25 @@ export default function Index() {
         </div>
         
         {/* Content - Clean and Elegant - Mobile Optimized with Minimum Spacing */}
-        <div className="relative z-10 text-center text-white space-y-1 sm:space-y-6 container-custom px-4">
+        <div className="relative z-10 text-center text-white container-custom px-4">
           {/* Hero Logo - Responsive sizing */}
-          <div className="flex justify-center animate-fade-in">
+          <div className="flex justify-center animate-fade-in mb-2 sm:mb-6">
             <img 
               src="/logo.png" 
               alt="Choice Foods Logo" 
-              className="h-32 sm:h-44 md:h-52 lg:h-64 xl:h-80 w-auto object-contain filter brightness-110 drop-shadow-2xl"
+              className="h-40 sm:h-48 md:h-56 lg:h-64 xl:h-80 w-auto object-contain filter brightness-110 drop-shadow-2xl"
             />
           </div>
 
           {/* Simple Elegant Slogan - Mobile responsive */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <div className="animate-fade-in mb-2 sm:mb-6" style={{ animationDelay: '0.3s' }}>
             <p className="text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-light text-white/95 max-w-4xl mx-auto leading-relaxed px-4">
               North Carolina's Premier Mediterranean Grocery Wholesaler
             </p>
           </div>
 
           {/* Single CTA - Mobile optimized */}
-          <div className="pt-1 sm:pt-6 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
             <Link 
               to="/catalog" 
               className="group inline-flex items-center justify-center bg-white text-neutralBlack px-6 sm:px-12 py-2.5 sm:py-4 rounded-xl font-semibold text-sm sm:text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/50 touch-target"
