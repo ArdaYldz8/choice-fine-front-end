@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Heart, Eye, MapPin, Shield, Star, Package } from 'lucide-react';
+import { ShoppingCart, Heart, Eye, MapPin, Shield, Package } from 'lucide-react';
 import { type Product } from '../lib/supabase';
 import { getProductImageUrl, getCategoryPlaceholder } from '../lib/image-utils';
 
@@ -48,16 +48,6 @@ const getOriginInfo = (category: string, productName: string) => {
   return origins[category as keyof typeof origins] || { country: 'Mediterranean', flag: '🌊' };
 };
 
-// Generate wholesale pricing tiers
-const getWholesalePricing = (basePrice: number) => {
-  return [
-    { qty: '1-11', price: basePrice, label: 'Retail' },
-    { qty: '12+', price: basePrice * 0.9, label: '10% Off' },
-    { qty: '24+', price: basePrice * 0.85, label: '15% Off' },
-    { qty: '48+', price: basePrice * 0.8, label: '20% Off' },
-  ];
-};
-
 export default function EnhancedProductCard({ 
   product, 
   onAddToCart, 
@@ -65,12 +55,10 @@ export default function EnhancedProductCard({
   viewMode = 'grid' 
 }: EnhancedProductCardProps) {
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const [showWholesale, setShowWholesale] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [productImageUrl, setProductImageUrl] = useState<string>(getCategoryPlaceholder(product.category || ''));
   
   const origin = getOriginInfo(product.category || '', product.name);
-  const wholesaleTiers = product.price ? getWholesalePricing(product.price) : [];
 
   // Load the actual product image
   useEffect(() => {
@@ -145,10 +133,6 @@ export default function EnhancedProductCard({
                   <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium w-fit">
                     {product.category}
                   </span>
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                    <span className="text-sm text-gray-600 ml-1">4.8 (24 reviews)</span>
-                  </div>
                 </div>
                 <h3 className="text-lg lg:text-xl font-serif font-bold text-gray-900 mb-2">{product.name}</h3>
                 <p className="text-gray-600 mb-4 line-clamp-2 text-sm lg:text-base">{product.description || 'Premium Mediterranean product sourced directly from local producers.'}</p>
@@ -158,12 +142,6 @@ export default function EnhancedProductCard({
                 {product.price && (
                   <div className="mb-3">
                     <div className="text-xl lg:text-2xl font-bold text-blue-600">${product.price.toFixed(2)}</div>
-                    <button 
-                      onClick={() => setShowWholesale(!showWholesale)}
-                      className="text-sm text-blue-600 hover:underline"
-                    >
-                      View wholesale pricing
-                    </button>
                   </div>
                 )}
                 
@@ -220,21 +198,6 @@ export default function EnhancedProductCard({
                 </button>
               </div>
             </div>
-            
-            {showWholesale && wholesaleTiers.length > 0 && (
-              <div className="border-t pt-4">
-                <h4 className="font-medium text-gray-900 mb-3">Wholesale Pricing</h4>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  {wholesaleTiers.map((tier, index) => (
-                    <div key={index} className="text-center bg-gray-50 rounded-lg p-3">
-                      <div className="text-sm font-medium text-gray-600">{tier.qty}</div>
-                      <div className="text-base lg:text-lg font-bold text-blue-600">${tier.price.toFixed(2)}</div>
-                      <div className="text-xs text-green-600">{tier.label}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -288,10 +251,6 @@ export default function EnhancedProductCard({
           <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
             {product.category}
           </span>
-          <div className="flex items-center ml-auto">
-            <Star className="h-4 w-4 text-yellow-400 fill-current" />
-            <span className="text-sm text-gray-600 ml-1">4.8</span>
-          </div>
         </div>
         
         <h3 className="text-lg font-serif font-bold text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
@@ -302,76 +261,54 @@ export default function EnhancedProductCard({
           <span>SKU: {product.sku}</span>
         </div>
         
-                 {product.price && (
-           <div className="mb-4">
-             <div className="flex items-center justify-between">
-               <div className="text-2xl font-bold text-blue-600">${product.price.toFixed(2)}</div>
-               <button 
-                 onClick={() => setShowWholesale(!showWholesale)}
-                 className="text-sm text-blue-600 hover:underline"
-               >
-                 Bulk pricing
-               </button>
-             </div>
-             
-             {showWholesale && wholesaleTiers.length > 0 && (
-               <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                 <div className="text-xs font-medium text-gray-600 mb-2">Volume Discounts:</div>
-                 <div className="grid grid-cols-2 gap-2 text-xs">
-                   {wholesaleTiers.slice(1).map((tier, index) => (
-                     <div key={index} className="flex justify-between">
-                       <span>{tier.qty}:</span>
-                       <span className="font-medium text-blue-600">${tier.price.toFixed(2)}</span>
-                     </div>
-                   ))}
-                 </div>
-               </div>
-             )}
+        {product.price && (
+          <div className="mb-4">
+            <div className="text-2xl font-bold text-blue-600">${product.price.toFixed(2)}</div>
+            
+            {/* Total price display for grid view */}
+            {quantity > 1 && (
+              <div className="mt-2 text-sm text-gray-600">
+                Total: <span className="font-medium text-blue-600">${(product.price * quantity).toFixed(2)}</span>
+              </div>
+            )}
+          </div>
+        )}
 
-             {/* Total price display for grid view */}
-             {quantity > 1 && (
-               <div className="mt-2 text-sm text-gray-600">
-                 Total: <span className="font-medium text-blue-600">${(product.price * quantity).toFixed(2)}</span>
-               </div>
-             )}
-           </div>
-         )}
-
-         {/* Compact Quantity Selector for Grid View */}
-         <div className="mb-4">
-           <div className="flex items-center justify-between gap-3">
-             <div className="flex items-center border border-gray-300 rounded-lg bg-white">
-               <button
-                 onClick={(e) => {
-                   e.preventDefault();
-                   setQuantity(Math.max(1, quantity - 1));
-                 }}
-                 className="p-2 hover:bg-gray-50 rounded-l-lg transition-colors"
-               >
-                 <span className="text-sm font-medium">-</span>
-               </button>
-               <span className="px-3 py-2 min-w-[40px] text-center text-sm font-medium">{quantity}</span>
-               <button
-                 onClick={(e) => {
-                   e.preventDefault();
-                   setQuantity(quantity + 1);
-                 }}
-                 className="p-2 hover:bg-gray-50 rounded-r-lg transition-colors"
-               >
-                 <span className="text-sm font-medium">+</span>
-               </button>
-             </div>
-             <span className="text-xs text-gray-500">Qty</span>
-           </div>
-         </div>
-         
-         <button 
-           onClick={handleAddToCartWithQuantity}
-           className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-         >
-           <ShoppingCart className="h-5 w-5" />
-           Add {quantity > 1 ? `${quantity}` : 'to Cart'}
-         </button>
+        {/* Compact Quantity Selector for Grid View */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center border border-gray-300 rounded-lg bg-white">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setQuantity(Math.max(1, quantity - 1));
+                }}
+                className="p-2 hover:bg-gray-50 rounded-l-lg transition-colors"
+              >
+                <span className="text-sm font-medium">-</span>
+              </button>
+              <span className="px-3 py-2 min-w-[40px] text-center text-sm font-medium">{quantity}</span>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setQuantity(quantity + 1);
+                }}
+                className="p-2 hover:bg-gray-50 rounded-r-lg transition-colors"
+              >
+                <span className="text-sm font-medium">+</span>
+              </button>
+            </div>
+            <span className="text-xs text-gray-500">Qty</span>
+          </div>
+        </div>
+        
+        <button 
+          onClick={handleAddToCartWithQuantity}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+        >
+          <ShoppingCart className="h-5 w-5" />
+          Add {quantity > 1 ? `${quantity}` : 'to Cart'}
+        </button>
       </div>
     </div>
   );
