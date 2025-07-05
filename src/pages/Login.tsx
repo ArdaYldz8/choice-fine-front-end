@@ -40,7 +40,7 @@ export default function Login() {
 
       if (data.user) {
         console.log('Login successful, user:', data.user);
-        setSuccess('Giriş başarılı! Yönlendiriliyorsunuz...');
+        setSuccess('Login successful! Redirecting...');
         
         // Check if user is admin and redirect accordingly
         const isAdmin = data.user.app_metadata?.role === 'admin' || data.user.email?.endsWith('@admin.com');
@@ -58,7 +58,7 @@ export default function Login() {
             if (!profile || !profile.approved) {
               await supabase.auth.signOut();
               clearAuthCache();
-              setError('Hesabınız henüz onaylanmamış. Lütfen yönetici onayını bekleyin.');
+              setError('Your account has not been approved yet. Please wait for administrator approval.');
               return;
             }
             console.log('User approved, redirecting to home');
@@ -66,7 +66,7 @@ export default function Login() {
             console.error('Profile check error:', err);
             await supabase.auth.signOut();
             clearAuthCache();
-            setError('Profil kontrol edilirken hata oluştu. Lütfen tekrar deneyin.');
+            setError('An error occurred while checking profile. Please try again.');
             return;
           }
           setTimeout(() => navigate('/'), 1000);
@@ -109,8 +109,8 @@ export default function Login() {
 
       if (data.user) {
         setSuccess(
-          'Kayıt başarılı! Hesabınız oluşturuldu ve yönetici onayı için gönderildi. ' +
-          'Onay aldıktan sonra giriş yapabileceksiniz.'
+          'Registration successful! Your account has been created and sent for administrator approval. ' +
+          'You will be able to log in after receiving approval.'
         );
         
         // Reset form
@@ -121,7 +121,7 @@ export default function Login() {
       }
     } catch (err) {
       console.error('Signup error:', err);
-      setError(err instanceof Error ? err.message : 'Kayıt başarısız');
+      setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {
       setIsLoading(false);
     }
