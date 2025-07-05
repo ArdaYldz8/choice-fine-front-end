@@ -75,7 +75,7 @@ export default function Index() {
         {/* Content - Clean and Elegant - Mobile Optimized with Minimum Spacing */}
         <div className="relative z-10 text-center text-white container-custom px-4">
           {/* Hero Logo - Responsive sizing */}
-          <div className="flex justify-center animate-fade-in mb-2 sm:mb-6">
+          <div className="flex justify-center animate-fade-in mb-1 sm:mb-6">
             <img 
               src="/logo.png" 
               alt="Choice Foods Logo" 
@@ -84,7 +84,7 @@ export default function Index() {
           </div>
 
           {/* Simple Elegant Slogan - Mobile responsive */}
-          <div className="animate-fade-in mb-2 sm:mb-6" style={{ animationDelay: '0.3s' }}>
+          <div className="animate-fade-in mb-1 sm:mb-6" style={{ animationDelay: '0.3s' }}>
             <p className="text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-light text-white/95 max-w-4xl mx-auto leading-relaxed px-4">
               North Carolina's Premier Mediterranean Grocery Wholesaler
             </p>
