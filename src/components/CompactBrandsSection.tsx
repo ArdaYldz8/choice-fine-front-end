@@ -189,8 +189,8 @@ const CompactBrandsSection: React.FC = () => {
         {/* Bottom text */}
         <div className="text-center mt-3 sm:mt-4 md:mt-6">
           <p className="text-xs text-gray-400">
-            <span className="hidden sm:inline">Proudly serving {exclusiveBrands.length + otherFeaturedBrands.length} premium brands across North Carolina</span>
-            <span className="sm:hidden">{exclusiveBrands.length + otherFeaturedBrands.length} premium brands in NC</span>
+            <span className="hidden sm:inline">Proudly serving 142+ premium brands across North Carolina</span>
+            <span className="sm:hidden">142+ premium brands in NC</span>
           </p>
         </div>
       </div>
