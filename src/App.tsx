@@ -17,6 +17,9 @@ import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import TestSupabase from "./pages/TestSupabase";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import Accessibility from "./pages/Accessibility";
 // import { DeadlockDebugger } from "@/components/DeadlockDebugger";
 
 const queryClient = new QueryClient();
@@ -41,6 +44,9 @@ const App = () => (
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/test-supabase" element={<TestSupabase />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/accessibility" element={<Accessibility />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

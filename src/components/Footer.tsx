@@ -157,9 +157,9 @@ export function Footer() {
               <span>© 2025 Choice Foods. All rights reserved.</span>
             </div>
             <div className="flex space-x-4 sm:space-x-6">
-              <a href="#" className="hover:text-white transition-colors duration-200 hover:underline touch-target">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors duration-200 hover:underline touch-target">Terms of Service</a>
-              <a href="#" className="hover:text-white transition-colors duration-200 hover:underline touch-target">Accessibility</a>
+              <Link to="/privacy-policy" className="hover:text-white transition-colors duration-200 hover:underline touch-target">Privacy Policy</Link>
+              <Link to="/terms-of-service" className="hover:text-white transition-colors duration-200 hover:underline touch-target">Terms of Service</Link>
+              <Link to="/accessibility" className="hover:text-white transition-colors duration-200 hover:underline touch-target">Accessibility</Link>
             </div>
           </div>
         </div>

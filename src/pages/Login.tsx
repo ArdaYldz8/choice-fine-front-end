@@ -358,9 +358,9 @@ export default function Login() {
           <div className="mt-8 text-center text-sm text-gray-500 animate-fade-in" style={{ animationDelay: '0.6s' }}>
             <p>
               By {isSignUp ? 'applying' : 'signing in'}, you agree to our{" "}
-              <a href="#" className="text-primaryBlue hover:text-accentRed transition-colors duration-200 underline">Terms of Service</a>
+              <Link to="/terms-of-service" className="text-primaryBlue hover:text-accentRed transition-colors duration-200 underline">Terms of Service</Link>
               {" "}and{" "}
-              <a href="#" className="text-primaryBlue hover:text-accentRed transition-colors duration-200 underline">Privacy Policy</a>
+              <Link to="/privacy-policy" className="text-primaryBlue hover:text-accentRed transition-colors duration-200 underline">Privacy Policy</Link>
             </p>
           </div>
         </div>
