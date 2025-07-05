@@ -230,18 +230,33 @@ export function Header() {
     )}>
       {/* Main navigation */}
       <nav className="container-custom py-2 sm:py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo - Responsive sizing */}
+        {/* Mobile Layout - Menu button centered at top */}
+        <div className="lg:hidden flex justify-center">
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="focus-ring p-3 rounded-xl bg-white/80 shadow-md"
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-6 w-6 text-neutralBlack" />
+            ) : (
+              <Menu className="h-6 w-6 text-neutralBlack" />
+            )}
+          </button>
+        </div>
+
+        {/* Desktop Layout - Logo, Navigation, and Auth */}
+        <div className="hidden lg:flex items-center justify-between">
+          {/* Logo - Desktop only */}
           <Link to="/" className="flex items-center">
             <img 
               src="/logo.png" 
               alt="Choice Foods Logo" 
-              className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain hover:scale-105 transition-transform duration-200"
+              className="h-12 md:h-14 lg:h-16 w-auto object-contain hover:scale-105 transition-transform duration-200"
             />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
+          <div className="flex items-center space-x-8">
             {navigation.map((item) => (
               <Link
                 key={item.name}
@@ -267,7 +282,7 @@ export function Header() {
           </div>
 
           {/* Auth Section */}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="flex items-center space-x-4">
             {user && profile?.approved && (
               <button
                 onClick={toggleCart}
@@ -376,18 +391,6 @@ export function Header() {
               </div>
             )}
           </div>
-
-          {/* Mobile menu button - Larger touch target */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden focus-ring p-3 rounded-xl bg-white/80 shadow-md"
-          >
-            {isMobileMenuOpen ? (
-              <X className="h-6 w-6 text-neutralBlack" />
-            ) : (
-              <Menu className="h-6 w-6 text-neutralBlack" />
-            )}
-          </button>
         </div>
 
         {/* Mobile Navigation - Enhanced */}
