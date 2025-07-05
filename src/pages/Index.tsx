@@ -132,6 +132,9 @@ export default function Index() {
         </div>
       </section>
 
+      {/* Trusted Partners Section */}
+      <CompactBrandsSection />
+
       {/* Our Premium Products Section - Mobile optimized */}
       <section className="py-6 sm:py-12 md:py-16 lg:py-20">
         <div className="container-custom px-4">
@@ -227,9 +230,6 @@ export default function Index() {
           </div>
                 </div>
       </section>
-
-      {/* Compact Brands Section */}
-      <CompactBrandsSection />
 
       {/* Catalog Download Section */}
       <section className="bg-gradient-to-br from-lightGrey via-white to-lightGrey py-6 sm:py-12 md:py-16 lg:py-20">
