@@ -48,7 +48,7 @@ const CompactBrandsSection: React.FC = () => {
                 <div
                   key={brand.id}
                   className="w-56 h-36 sm:w-64 sm:h-40 flex items-center justify-center 
-                             bg-gradient-to-br from-primaryBlue via-purple-600 to-accentRed 
+                             bg-slate-900 
                              border-3 border-amber-400 rounded-2xl shadow-2xl hover:shadow-3xl 
                              transition-all duration-300 hover:scale-110 cursor-pointer p-4"
                 >
