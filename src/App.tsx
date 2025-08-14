@@ -14,6 +14,7 @@ import Catalog from "./pages/Catalog";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
+import OrderManagement from "./pages/OrderManagement";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import TestSupabase from "./pages/TestSupabase";
@@ -42,6 +43,7 @@ const App = () => (
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/orders" element={<OrderManagement />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/test-supabase" element={<TestSupabase />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
