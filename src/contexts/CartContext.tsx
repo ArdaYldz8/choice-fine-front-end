@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { supabase } from '../lib/supabase';
+// Supabase bağlantısı kaldırıldı
 
 // Types
 export interface CartItem {
@@ -240,35 +240,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const submitOrder = async (notes?: string): Promise<boolean> => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-
+      // Mock order submission - Supabase bağlantısı kaldırıldı
+      console.log('Mock order submission - database disabled');
+      
       if (state.items.length === 0) {
         throw new Error('Cart is empty');
       }
 
-      // Create order
-      const order: Omit<Order, 'id' | 'created_at' | 'updated_at'> = {
-        user_id: user.id,
+      // Create mock order
+      const mockOrder: Order = {
+        id: 'mock-order-' + Date.now(),
+        user_id: 'mock-user',
         items: state.items,
         total_items: state.totalItems,
         status: 'pending',
         notes: notes || '',
+        created_at: new Date().toISOString()
       };
 
-      const { data, error } = await supabase
-        .from('orders')
-        .insert([order])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      console.log('Order submitted successfully:', data);
+      console.log('Mock order created:', mockOrder);
       
-      // Clear cart after successful order
+      // Clear cart after mock order
       clearCart();
       closeCart();
       

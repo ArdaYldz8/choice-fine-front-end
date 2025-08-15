@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { supabase, type Product } from '../lib/supabase'
-import { cacheUtils, optimizeQuery, performanceMonitor } from '../lib/cache-utils'
+import { type Product } from '../lib/supabase'
+import { cacheUtils, performanceMonitor } from '../lib/cache-utils'
 
 // Mock products as fallback when real data isn't available
 const mockProducts: Product[] = [
@@ -101,13 +101,12 @@ export function useProducts(options: {
         await cacheUtils.clear('products');
       }
 
-      setUsingMockData(false);
-      
-      // Build optimized query - start with basic query first
-      let query = supabase
-        .from('products')
-        .select('id, name, description, price, category, sku, active, quantity_on_hand, image_url, created_at, updated_at')
-        .eq('active', true);
+      // Always use mock data since Supabase is disabled
+      console.log('📦 Using mock product data (Supabase disabled)');
+      setProducts(mockProducts);
+      setUsingMockData(true);
+      setError('Using sample data (Database connection disabled)');
+      return;
 
       // Add category filter
       if (category && category !== 'All Categories') {
@@ -288,11 +287,18 @@ export function useProducts(options: {
   const filteredProducts = useMemo(() => {
     let filtered = products;
     
-    // Apply brand filter
+    // Apply brand filter - check if product name starts with or contains brand name
     if (brand && brand !== 'All Brands') {
-      filtered = filtered.filter(product => 
-        product.name.toLowerCase().includes(brand.toLowerCase())
-      );
+      filtered = filtered.filter(product => {
+        const productName = product.name.toLowerCase();
+        const brandName = brand.toLowerCase();
+        
+        // Check if product name starts with brand name or contains it as a word
+        return productName.startsWith(brandName) || 
+               productName.includes(' ' + brandName + ' ') ||
+               productName.includes(' ' + brandName) ||
+               productName.includes(brandName + ' ');
+      });
     }
     
     // Apply search term filter
@@ -306,23 +312,22 @@ export function useProducts(options: {
     return filtered;
   }, [products, searchTerm, brand]);
 
-  // CRUD operations with cache invalidation
+  // Mock CRUD operations - Supabase disabled
   const addProduct = useCallback(async (product: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .insert([product])
-        .select()
-
-      if (error) throw error;
+      // Mock add product
+      const newProduct: Product = {
+        ...product,
+        id: 'mock-' + Date.now(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
       
-      if (data) {
-        setProducts(prev => [data[0], ...prev]);
-        // Invalidate cache
-        cacheUtils.clear('products');
-      }
+      setProducts(prev => [newProduct, ...prev]);
+      // Invalidate cache
+      cacheUtils.clear('products');
       
-      return { success: true, data };
+      return { success: true, data: [newProduct] };
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to add product';
       setError(message);
@@ -332,37 +337,28 @@ export function useProducts(options: {
 
   const updateProduct = useCallback(async (id: string, updates: Partial<Product>) => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select()
-
-      if (error) throw error;
+      // Mock update product
+      const updatedProduct = {
+        ...products.find(p => p.id === id),
+        ...updates,
+        updated_at: new Date().toISOString()
+      };
       
-      if (data) {
-        setProducts(prev => prev.map(p => p.id === id ? data[0] : p));
-        // Invalidate cache
-        cacheUtils.clear('products');
-      }
+      setProducts(prev => prev.map(p => p.id === id ? updatedProduct as Product : p));
+      // Invalidate cache
+      cacheUtils.clear('products');
       
-      return { success: true, data };
+      return { success: true, data: [updatedProduct] };
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to update product';
       setError(message);
       return { success: false, error: message };
     }
-  }, []);
+  }, [products]);
 
   const deleteProduct = useCallback(async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('products')
-        .update({ active: false })
-        .eq('id', id)
-
-      if (error) throw error;
-      
+      // Mock delete product
       setProducts(prev => prev.filter(p => p.id !== id));
       // Invalidate cache
       cacheUtils.clear('products');

@@ -126,7 +126,7 @@ export default function Products() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 35;
 
-  // Use the optimized products hook with filters
+  // Use the optimized products hook with filters (no auth check - using mock data)
   const { 
     products: allProducts, 
     loading: productsLoading, 
@@ -136,13 +136,16 @@ export default function Products() {
     searchTerm: effectiveSearchTerm,
     brand: activeBrand,
     pageSize: 2000, // Get all products (we have 1041 products), we'll handle pagination client-side
-    enabled: !!profile?.approved
+    enabled: true // Always enabled since we're using mock data
   });
 
-  // Debug: Log product count
+  // Debug: Log product count and filtering
   useEffect(() => {
     console.log(`🔍 Products loaded: ${allProducts.length} total products`);
-  }, [allProducts.length]);
+    console.log(`🎯 Active brand filter: "${activeBrand}"`);
+    console.log(`📂 Selected category: "${selectedCategory}"`);
+    console.log(`🔍 Search term: "${effectiveSearchTerm}"`);
+  }, [allProducts.length, activeBrand, selectedCategory, effectiveSearchTerm]);
 
   // Calculate pagination
   const totalPages = Math.ceil(allProducts.length / itemsPerPage);
@@ -155,9 +158,14 @@ export default function Products() {
     if (brandParam) {
       // Clear search input when brand is selected from URL
       setSearchInput("");
-      // Set the brand in dropdown if it exists in our brand list
-      if (brandNames.includes(brandParam) && selectedBrand !== brandParam) {
-        setSelectedBrand(brandParam);
+      
+      // Find matching brand (case insensitive)
+      const matchingBrand = brandNames.find(brand => 
+        brand.toLowerCase() === brandParam.toLowerCase()
+      );
+      
+      if (matchingBrand && selectedBrand !== matchingBrand) {
+        setSelectedBrand(matchingBrand);
       }
     }
   }, [brandParam]);
@@ -172,38 +180,18 @@ export default function Products() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentPage]);
 
-  // Check auth status
+  // Set mock profile for demo purposes (Supabase disabled)
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          setUser(session.user);
-          const userProfile = await getCurrentUserProfile();
-          setProfile(userProfile);
-        }
-      } catch (error) {
-        console.error('Auth check error:', error);
-      } finally {
-        setIsLoading(false);
-      }
+    // Mock approved user profile
+    const mockProfile = {
+      approved: true,
+      email: 'demo@choicefoods.com',
+      name: 'Demo User'
     };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        setUser(session.user);
-        const userProfile = await getCurrentUserProfile();
-        setProfile(userProfile);
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setProfile(null);
-      }
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    
+    setProfile(mockProfile);
+    setUser({ email: 'demo@choicefoods.com' });
+    setIsLoading(false);
   }, []);
 
   // Show loading while checking auth

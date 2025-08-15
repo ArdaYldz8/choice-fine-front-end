@@ -1,21 +1,34 @@
-import { createClient } from '@supabase/supabase-js'
+// Supabase bağlantısı kaldırıldı - Mock data kullanılıyor
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-const supabaseServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_KEY
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+// Mock Supabase client
+export const supabase = {
+  from: (table: string) => ({
+    select: () => Promise.resolve({ data: [], error: null }),
+    insert: () => Promise.resolve({ data: null, error: null }),
+    update: () => Promise.resolve({ data: null, error: null }),
+    delete: () => Promise.resolve({ data: null, error: null }),
+    eq: () => ({
+      select: () => Promise.resolve({ data: [], error: null }),
+      update: () => Promise.resolve({ data: null, error: null }),
+      delete: () => Promise.resolve({ data: null, error: null })
+    }),
+    ilike: () => ({
+      select: () => Promise.resolve({ data: [], error: null }),
+      limit: () => Promise.resolve({ data: [], error: null })
+    }),
+    order: () => ({
+      range: () => Promise.resolve({ data: [], error: null })
+    })
+  }),
+  auth: {
+    getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+    signInWithPassword: () => Promise.resolve({ data: null, error: { message: 'Mock mode - no authentication' } }),
+    signUp: () => Promise.resolve({ data: null, error: { message: 'Mock mode - no authentication' } }),
+    signOut: () => Promise.resolve({ error: null })
+  }
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-// Admin client with service role key (yönetici istemcisi)
-export const supabaseAdmin = supabaseServiceKey 
-  ? createClient(supabaseUrl, supabaseServiceKey, {
-      auth: { autoRefreshToken: false, persistSession: false }
-    })
-  : null
+export const supabaseAdmin = null
 
 // Database types for TypeScript
 export interface Product {
