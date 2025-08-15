@@ -69,9 +69,6 @@ export function Footer() {
                 <span className="text-gray-300 group-hover:text-white transition-colors duration-200 text-xs sm:text-sm">Dairy Products</span>
               </li>
             </ul>
-            <div className="pt-2 p-2 sm:p-3 bg-gray-800/50 rounded-lg border border-gray-700">
-              <span className="text-primaryBlue text-xs">*Member login required to view catalog</span>
-            </div>
           </div>
 
           {/* Quick Links - Mobile optimized */}
@@ -88,12 +85,6 @@ export function Footer() {
                 <Link to="/contact" className="group flex items-center text-gray-300 hover:text-white transition-all duration-200 touch-target">
                   <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-accentRed mr-2 group-hover:translate-x-1 transition-transform duration-200" />
                   <span className="group-hover:underline text-xs sm:text-sm">Contact</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/login" className="group flex items-center text-gray-300 hover:text-white transition-all duration-200 touch-target">
-                  <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-accentRed mr-2 group-hover:translate-x-1 transition-transform duration-200" />
-                  <span className="group-hover:underline text-xs sm:text-sm">Member Login</span>
                 </Link>
               </li>
             </ul>
