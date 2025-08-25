@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Download, Eye, BookOpen, ExternalLink, ChevronRight, Package, Users, Clock } from 'lucide-react';
 import OptimizedPDFViewer from '../components/OptimizedPDFViewer';
+import { usePDFPreloader } from '../hooks/usePDFPreloader';
 
 export default function Catalog() {
   const [isMobile, setIsMobile] = useState(false);
   const [selectedPDF, setSelectedPDF] = useState<{ url: string; page?: number } | null>(null);
+
+  // Preload PDF in background
+  const pdfUrl = '/Choice Foods Catalog.pdf';
+  const { isPreloaded, progress: preloadProgress } = usePDFPreloader(pdfUrl, !isMobile);
 
   const checkMobile = useCallback(() => {
     setIsMobile(window.innerWidth < 768);
@@ -163,19 +168,29 @@ export default function Catalog() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => {
-                  // Full catalog view
-                  const pdfUrl = '/Choice Foods Catalog.pdf';
                   if (isMobile || window.innerWidth < 1024) {
                     window.open(pdfUrl, '_blank');
                   } else {
                     setSelectedPDF({ url: pdfUrl });
                   }
                 }}
-                className="group inline-flex items-center justify-center bg-white text-neutralBlack px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                className="group inline-flex items-center justify-center bg-white text-neutralBlack px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl relative"
               >
                 <Eye className="mr-3 h-5 w-5" />
                 View Catalog Online
                 <ExternalLink className="ml-2 h-4 w-4 opacity-70" />
+                
+                {/* Preload status indicator */}
+                {!isMobile && !isPreloaded && (
+                  <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
+                    Loading...
+                  </span>
+                )}
+                {!isMobile && isPreloaded && (
+                  <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                    ✓ Ready
+                  </span>
+                )}
               </button>
               
               <button

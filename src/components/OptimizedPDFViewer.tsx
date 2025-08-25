@@ -14,6 +14,7 @@ export default function OptimizedPDFViewer({
 }: OptimizedPDFViewerProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
 
   const handlePDFLoad = useCallback(() => {
     setLoading(false);
@@ -23,6 +24,30 @@ export default function OptimizedPDFViewer({
     setLoading(false);
     setError(true);
   }, []);
+
+  // Simulate loading progress for large PDFs
+  React.useEffect(() => {
+    if (loading) {
+      const intervals = [20, 35, 50, 65, 80, 95];
+      const timeouts = [500, 1000, 2000, 3000, 5000, 8000];
+      
+      intervals.forEach((progress, index) => {
+        setTimeout(() => {
+          if (loading) setLoadingProgress(progress);
+        }, timeouts[index]);
+      });
+
+      // Auto-fallback after 10 seconds if still loading
+      const fallbackTimeout = setTimeout(() => {
+        if (loading) {
+          setLoading(false);
+          setError(true);
+        }
+      }, 10000);
+
+      return () => clearTimeout(fallbackTimeout);
+    }
+  }, [loading]);
 
   const handleDownload = () => {
     const link = document.createElement('a');
@@ -114,8 +139,39 @@ export default function OptimizedPDFViewer({
         {loading && (
           <div className="absolute inset-0 bg-white flex flex-col items-center justify-center z-10">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
-            <p className="text-gray-600 text-sm">Loading catalog...</p>
-            <p className="text-gray-500 text-xs mt-2">This may take a moment for large files</p>
+            <p className="text-gray-600 text-sm mb-4">Loading catalog...</p>
+            
+            {/* Progress Bar */}
+            <div className="w-64 bg-gray-200 rounded-full h-2 mb-4">
+              <div 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                style={{ width: `${loadingProgress}%` }}
+              ></div>
+            </div>
+            
+            <p className="text-gray-500 text-xs text-center max-w-xs">
+              Loading 68MB PDF file... {loadingProgress}% complete
+              <br />
+              <span className="text-xs text-gray-400 mt-1 block">
+                First load may take 10-15 seconds
+              </span>
+            </p>
+
+            {/* Quick action buttons while loading */}
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={handleOpenNew}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                Open in Browser
+              </button>
+              <button
+                onClick={handleDownload}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                Download Instead
+              </button>
+            </div>
           </div>
         )}
         
