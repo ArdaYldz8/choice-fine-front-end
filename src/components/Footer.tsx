@@ -11,27 +11,7 @@ export function Footer() {
       </div>
       
       <div className="relative container-custom py-8 sm:py-12 md:py-16 lg:py-20 px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
-          {/* Company Info - Mobile optimized */}
-          <div className="space-y-4 sm:space-y-6">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-xl flex items-center justify-center shadow-lg p-2">
-                <img 
-                  src="/logo.png" 
-                  alt="Choice Foods Logo" 
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <div>
-                <div className="font-serif font-bold text-lg sm:text-xl">Choice Foods</div>
-                <div className="text-xs sm:text-sm text-gray-400">Since 2010</div>
-              </div>
-            </div>
-            <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
-              Your source for fine Mediterranean products. As a proud member of the North Carolina community since 2010, 
-              we supply our clients with the very best in the Grocery Wholesaler industry.
-            </p>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
 
 
           {/* Quick Links - Mobile optimized */}
@@ -63,31 +43,31 @@ export function Footer() {
           <div className="space-y-4 sm:space-y-6">
             <h3 className="font-serif font-bold text-lg sm:text-xl mb-4 sm:mb-6 text-white">Contact Us</h3>
             <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors duration-200">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center flex-shrink-0">
-                  <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+              <div className="flex items-start gap-3 p-2 sm:p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors duration-200">
+                <div className="w-8 h-8 sm:w-8 sm:h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <MapPin className="h-4 w-4 sm:h-4 sm:w-4 text-white" />
                 </div>
-                <div className="text-gray-300 text-xs sm:text-sm">
+                <div className="text-gray-300 text-xs sm:text-sm flex-1">
                   409 Prospect St.<br />
                   High Point, NC 27260<br />
                   United States
                 </div>
               </div>
               
-              <div className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors duration-200">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+              <div className="flex items-center gap-3 p-2 sm:p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors duration-200">
+                <div className="w-8 h-8 sm:w-8 sm:h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Phone className="h-4 w-4 sm:h-4 sm:w-4 text-white" />
                 </div>
-                <a href="tel:336-782-8283" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm touch-target">
+                <a href="tel:336-782-8283" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm touch-target flex-1">
                   336-782-8283
                 </a>
               </div>
               
-              <div className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors duration-200">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Mail className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+              <div className="flex items-center gap-3 p-2 sm:p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors duration-200">
+                <div className="w-8 h-8 sm:w-8 sm:h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Mail className="h-4 w-4 sm:h-4 sm:w-4 text-white" />
                 </div>
-                <a href="mailto:choicefoods@hotmail.com" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm break-all touch-target">
+                <a href="mailto:choicefoods@hotmail.com" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm break-all touch-target flex-1">
                   choicefoods@hotmail.com
                 </a>
               </div>

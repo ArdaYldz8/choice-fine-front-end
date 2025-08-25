@@ -85,10 +85,10 @@ export default function Index() {
 
           {/* Simple Elegant Slogan - Mobile responsive */}
           <div className="animate-fade-in mb-3 sm:mb-4 md:mb-6 -mt-6 sm:-mt-8 md:-mt-10" style={{ animationDelay: '0.3s' }}>
-            <p className="text-xs sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold text-white max-w-4xl mx-auto leading-relaxed px-4 mb-1 sm:mb-2">
+            <p className="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-white max-w-4xl mx-auto leading-relaxed px-4 mb-1 sm:mb-2">
               Middle Eastern & Mediterranean Flavors, Delivered Your Way.
             </p>
-            <p className="text-[10px] sm:text-sm md:text-base lg:text-lg xl:text-xl font-light text-white/90 max-w-3xl mx-auto leading-relaxed px-4">
+            <p className="text-xs sm:text-base md:text-lg lg:text-xl xl:text-2xl font-light text-white/90 max-w-3xl mx-auto leading-relaxed px-4">
               Your trusted NC partner since 2010 - flexible weekly deliveries tailored to your business needs.
             </p>
           </div>
