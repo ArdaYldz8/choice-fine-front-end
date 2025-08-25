@@ -228,13 +228,6 @@ export function Header() {
                     </a>
                   </div>
                 </div>
-                <Link
-                  to="/contact"
-                  className="block btn-primary text-center mx-4 touch-target"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Get In Touch
-                </Link>
               </div>
             </div>
           </div>

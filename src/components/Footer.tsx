@@ -30,12 +30,6 @@ export function Footer() {
                   <span className="group-hover:underline text-xs sm:text-sm">Catalog</span>
                 </Link>
               </li>
-              <li>
-                <Link to="/contact" className="group flex items-center text-gray-300 hover:text-white transition-all duration-200 py-1">
-                  <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-accentRed mr-2 group-hover:translate-x-1 transition-transform duration-200" />
-                  <span className="group-hover:underline text-xs sm:text-sm">Contact</span>
-                </Link>
-              </li>
             </ul>
           </div>
 

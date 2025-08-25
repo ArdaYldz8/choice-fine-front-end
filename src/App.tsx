@@ -11,7 +11,6 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import Products from "./pages/Products";
 import Catalog from "./pages/Catalog";
-import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -35,7 +34,6 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/catalog" element={<Catalog />} />
                 <Route path="/products" element={<Products />} />
-                <Route path="/contact" element={<Contact />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="/accessibility" element={<Accessibility />} />

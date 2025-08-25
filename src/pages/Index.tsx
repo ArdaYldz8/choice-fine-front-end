@@ -253,12 +253,6 @@ export default function Index() {
                 <p className="text-[11px] sm:text-lg text-gray-600 leading-snug sm:leading-relaxed px-2">
                   As your local partner, we offer flexible delivery, fast service, and no large volume requirements. Proud exclusive NC distributor for Marmia Foods & Moda.
                 </p>
-                <div className="pt-2 sm:pt-4">
-                  <Link to="/contact" className="group inline-flex items-center justify-center bg-gradient-to-r from-primaryBlue to-accentRed text-white px-4 sm:px-8 py-2 sm:py-4 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-primaryBlue/50">
-                    Get In Touch
-                    <ArrowRight className="ml-1.5 sm:ml-3 h-3 w-3 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform duration-200" />
-                  </Link>
-                </div>
               </div>
             </div>
           </div>

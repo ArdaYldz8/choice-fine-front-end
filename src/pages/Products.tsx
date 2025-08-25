@@ -352,13 +352,13 @@ export default function Products() {
                 </>
               ) : !profile?.approved ? (
                 <>
-                  <Link 
-                    to="/contact"
+                  <a 
+                    href="mailto:choicefoods@hotmail.com"
                     className="group inline-flex items-center justify-center bg-white text-neutralBlack px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 hover:scale-105 touch-target"
                   >
                     <Package className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5" />
-                    Contact Support
-                  </Link>
+                    Email Support
+                  </a>
                   
                   <Link 
                     to="/catalog"
@@ -552,21 +552,21 @@ export default function Products() {
                       >
                         Sign In
                       </Link>
-                      <Link 
-                        to="/contact" 
+                      <a 
+                        href="mailto:choicefoods@hotmail.com?subject=Account%20Request" 
                         className="inline-flex items-center justify-center border-2 border-primaryBlue text-primaryBlue px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 hover:bg-primaryBlue hover:text-white touch-target"
                       >
                         Request Account
-                      </Link>
+                      </a>
                     </>
                   ) : (
                     <>
-                      <Link 
-                        to="/contact" 
+                      <a 
+                        href="mailto:choicefoods@hotmail.com" 
                         className="inline-flex items-center justify-center bg-primaryBlue text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl touch-target"
                       >
-                        Contact Support
-                      </Link>
+                        Email Support
+                      </a>
                       <Link 
                         to="/catalog" 
                         className="inline-flex items-center justify-center border-2 border-primaryBlue text-primaryBlue px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 hover:bg-primaryBlue hover:text-white touch-target"
