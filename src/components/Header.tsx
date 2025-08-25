@@ -6,8 +6,7 @@ import { cn } from "../lib/utils";
 const navigation = [
   {
     name: "Home",
-    href: "https://www.choicefinefoods.com/",
-    external: true
+    href: "/"
   },
   {
     name: "Catalog",
