@@ -146,24 +146,6 @@ export default function Catalog() {
               Product <span className="text-accentRed">Catalog</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
-              59 pages of premium Mediterranean & Middle Eastern products
-            </p>
-
-            <div className="flex items-center justify-center gap-8 mb-8 text-white/80">
-              <div className="flex items-center gap-2">
-                <Package className="w-5 h-5" />
-                <span>1000+ Products</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                <span>20+ Categories</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                <span>Updated 2024</span>
-              </div>
-            </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button

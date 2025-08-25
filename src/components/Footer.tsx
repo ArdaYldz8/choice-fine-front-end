@@ -42,38 +42,38 @@ export function Footer() {
           {/* Contact Info - Mobile optimized */}
           <div className="space-y-4 sm:space-y-6">
             <h3 className="font-serif font-bold text-lg sm:text-xl mb-4 sm:mb-6 text-white">Contact Us</h3>
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-start gap-3 p-2 sm:p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors duration-200">
-                <div className="w-8 h-8 sm:w-8 sm:h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <MapPin className="h-4 w-4 sm:h-4 sm:w-4 text-white" />
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-primaryBlue to-accentRed rounded-full flex items-center justify-center flex-shrink-0">
+                  <MapPin className="h-5 w-5 text-white" />
                 </div>
-                <div className="text-gray-300 text-xs sm:text-sm flex-1">
+                <div className="text-gray-300 text-sm sm:text-base">
                   409 Prospect St.<br />
                   High Point, NC 27260<br />
                   United States
                 </div>
               </div>
               
-              <div className="flex items-center gap-3 p-2 sm:p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors duration-200">
-                <div className="w-8 h-8 sm:w-8 sm:h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Phone className="h-4 w-4 sm:h-4 sm:w-4 text-white" />
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-primaryBlue to-accentRed rounded-full flex items-center justify-center flex-shrink-0">
+                  <Phone className="h-5 w-5 text-white" />
                 </div>
-                <a href="tel:336-782-8283" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm touch-target flex-1">
+                <a href="tel:336-782-8283" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base">
                   336-782-8283
                 </a>
               </div>
               
-              <div className="flex items-center gap-3 p-2 sm:p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors duration-200">
-                <div className="w-8 h-8 sm:w-8 sm:h-8 bg-gradient-to-br from-primaryBlue to-accentRed rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Mail className="h-4 w-4 sm:h-4 sm:w-4 text-white" />
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-primaryBlue to-accentRed rounded-full flex items-center justify-center flex-shrink-0">
+                  <Mail className="h-5 w-5 text-white" />
                 </div>
-                <a href="mailto:choicefoods@hotmail.com" className="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm break-all touch-target flex-1">
+                <a href="mailto:choicefoods@hotmail.com" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base break-all">
                   choicefoods@hotmail.com
                 </a>
               </div>
               
-              <div className="p-2 sm:p-3 bg-gradient-to-r from-primaryBlue/20 to-accentRed/20 rounded-lg border border-primaryBlue/30">
-                <div className="text-gray-300 text-xs">
+              <div className="mt-6 p-3 bg-gradient-to-r from-primaryBlue/20 to-accentRed/20 rounded-lg border border-primaryBlue/30">
+                <div className="text-gray-300 text-sm">
                   <strong className="text-white">Hours:</strong> Monday - Friday, 8:00 AM - 4:00 PM
                 </div>
               </div>
