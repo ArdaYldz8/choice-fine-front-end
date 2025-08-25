@@ -45,6 +45,53 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Wix embed cleanup - prevent button stacking
+  useEffect(() => {
+    // Check if we're in a Wix iframe
+    const isWixEmbed = () => {
+      try {
+        return window.parent !== window && 
+               (document.referrer.includes('wix.com') || 
+                window.location !== window.parent.location);
+      } catch (e) {
+        return true; // Cross-origin error indicates iframe
+      }
+    };
+
+    if (isWixEmbed()) {
+      // Clean up duplicate Wix buttons on route changes
+      const cleanupWixButtons = () => {
+        // Remove stacked shopping cart and profile buttons
+        const wixButtonSelectors = [
+          '[data-hook="shopping-cart-icon"]',
+          '[data-hook="profile-menu"]',
+          '[class*="cart-button"]',
+          '[class*="profile-button"]',
+          'button[aria-label*="cart"]',
+          'button[aria-label*="profile"]',
+          '[id*="cart"]',
+          '[id*="profile"]'
+        ];
+
+        wixButtonSelectors.forEach(selector => {
+          const elements = document.querySelectorAll(selector);
+          // Keep only the first instance, remove duplicates
+          for (let i = 1; i < elements.length; i++) {
+            elements[i].remove();
+          }
+        });
+      };
+
+      // Run cleanup immediately
+      cleanupWixButtons();
+      
+      // Run cleanup after route changes
+      const timeoutId = setTimeout(cleanupWixButtons, 100);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [location.pathname]); // Run on route changes
+
 
   return (
     <header className={cn(
