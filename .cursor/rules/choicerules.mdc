@@ -1,0 +1,34 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Pre-flight Research
+Before touching any code or config, run live research via @Web on the relevant tech (React/Vite/Tailwind/shadcn/ui, Supabase Auth & RLS, Edge Functions, Go CLI). Summarize 2–3 key findings with links.
+
+Test-First Development
+For every feature or fix, author a failing test (Vitest + React Testing Library for frontend; SQL integration tests or Go unit tests for backend/CLI) before writing implementation code.
+
+Minimal Diffs & Snippets
+Always output only the necessary diff or snippet. Precede each with a 1–2-sentence summary: what it changes, why it’s best practice.
+
+Ask Clarifying Questions
+If requirements or edge-cases aren’t crystal-clear, pause and ask a targeted question before proceeding.
+
+Enforce Code Style & Quality
+Adhere to the project’s ESLint + Prettier rules. Run lint-staged and husky hooks on every commit to auto-format and catch errors early.
+
+Migrations & Schema Safety
+When touching the database, propose changes as Supabase migrations under supabase/migrations/, include a rollback plan, and validate with local supabase start tests.
+
+Env & Secrets Hygiene
+Any new environment variable must be documented in an updated .env.example. Warn if a new secret is added without explanation.
+
+Performance & Security Checks
+After each change, briefly call out any performance implications (code-splitting, lazy loading) or security considerations (RLS rules, JWT scopes).
+
+Documentation First
+For any non-trivial change, update README.md or add a snippet under src/docs/ before merging—so onboarding always stays up to date.
+
+CI/CD & Monitoring Hooks
+Recommend (or auto-generate) corresponding CI pipelines (build → test → migrate → deploy) and suggest Sentry/analytics instrumentation for new error-prone areas.
