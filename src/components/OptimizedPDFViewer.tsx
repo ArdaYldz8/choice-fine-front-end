@@ -1,5 +1,9 @@
-import React, { useState, useCallback } from 'react';
-import { X, Download, ExternalLink, Loader2 } from 'lucide-react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { X, Download, ExternalLink, Loader2, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Configure PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.worker.min.js';
 
 interface OptimizedPDFViewerProps {
   pdfUrl: string;
@@ -15,39 +19,105 @@ export default function OptimizedPDFViewer({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [pdf, setPdf] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [scale, setScale] = useState(1.0);
+  const [pageLoading, setPageLoading] = useState(false);
+  
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const handlePDFLoad = useCallback(() => {
-    setLoading(false);
-  }, []);
+  // Load PDF
+  useEffect(() => {
+    const loadPDF = async () => {
+      try {
+        setLoading(true);
+        setError(false);
 
-  const handlePDFError = useCallback(() => {
-    setLoading(false);
-    setError(true);
-  }, []);
+        const loadingTask = pdfjsLib.getDocument({
+          url: pdfUrl,
+          disableAutoFetch: false,
+          disableStream: false,
+        });
 
-  // Simulate loading progress for large PDFs
-  React.useEffect(() => {
-    if (loading) {
-      const intervals = [20, 35, 50, 65, 80, 95];
-      const timeouts = [500, 1000, 2000, 3000, 5000, 8000];
+        loadingTask.onProgress = (data: { loaded: number; total: number }) => {
+          if (data.total > 0) {
+            const progress = Math.round((data.loaded / data.total) * 100);
+            setLoadingProgress(progress);
+          }
+        };
+
+        const pdfDoc = await loadingTask.promise;
+        setPdf(pdfDoc);
+        setTotalPages(pdfDoc.numPages);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error loading PDF:', err);
+        setError(true);
+        setLoading(false);
+      }
+    };
+
+    loadPDF();
+  }, [pdfUrl]);
+
+  // Render page
+  const renderPage = useCallback(async (pageNum: number) => {
+    if (!pdf || !canvasRef.current) return;
+
+    try {
+      setPageLoading(true);
+      const page = await pdf.getPage(pageNum);
+      const viewport = page.getViewport({ scale });
       
-      intervals.forEach((progress, index) => {
-        setTimeout(() => {
-          if (loading) setLoadingProgress(progress);
-        }, timeouts[index]);
-      });
-
-      // Auto-fallback after 7 seconds if still loading (CDN should be faster)
-      const fallbackTimeout = setTimeout(() => {
-        if (loading) {
-          setLoading(false);
-          setError(true);
-        }
-      }, 7000);
-
-      return () => clearTimeout(fallbackTimeout);
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      
+      if (!context) return;
+      
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      
+      const renderContext = {
+        canvasContext: context,
+        viewport: viewport,
+      };
+      
+      await page.render(renderContext).promise;
+      setPageLoading(false);
+    } catch (err) {
+      console.error('Error rendering page:', err);
+      setPageLoading(false);
     }
-  }, [loading]);
+  }, [pdf, scale]);
+
+  // Render page when it changes
+  useEffect(() => {
+    if (pdf && currentPage) {
+      renderPage(currentPage);
+    }
+  }, [pdf, currentPage, renderPage]);
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
+  const handleZoomIn = () => {
+    setScale(prev => Math.min(prev + 0.2, 2.5));
+  };
+
+  const handleZoomOut = () => {
+    setScale(prev => Math.max(prev - 0.2, 0.5));
+  };
 
   const handleDownload = () => {
     const link = document.createElement('a');
@@ -67,7 +137,7 @@ export default function OptimizedPDFViewer({
           <div className="text-center">
             <div className="text-red-500 mb-4 text-4xl">⚠️</div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Catalog</h3>
-            <p className="text-gray-600 mb-6">We couldn't load the PDF viewer. Please try one of these options:</p>
+            <p className="text-gray-600 mb-6">We couldn't load the PDF. Please try one of these options:</p>
             <div className="flex flex-col gap-3">
               <button
                 onClick={handleOpenNew}
@@ -96,69 +166,29 @@ export default function OptimizedPDFViewer({
     );
   }
 
-  return (
-    <div className="fixed inset-0 bg-black/90 z-50 flex flex-col">
-      {/* Header Controls */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-        <h3 className="font-semibold text-gray-900 flex items-center gap-3">
-          {loading && <Loader2 className="h-4 w-4 animate-spin text-blue-600" />}
-          {title}
-        </h3>
-        
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleDownload}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Download PDF"
-          >
-            <Download className="h-4 w-4" />
-          </button>
-          
-          <button
-            onClick={handleOpenNew}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Open in New Tab"
-          >
-            <ExternalLink className="h-4 w-4" />
-          </button>
-          
-          <div className="h-6 w-px bg-gray-300 mx-2" />
-          
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Close"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* PDF Embed with optimized loading */}
-      <div className="flex-1 relative bg-gray-800">
-        {loading && (
-          <div className="absolute inset-0 bg-white flex flex-col items-center justify-center z-10">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
-            <p className="text-gray-600 text-sm mb-4">Loading catalog...</p>
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl p-8 shadow-2xl max-w-md w-full mx-4">
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 animate-spin text-blue-600 mb-4 mx-auto" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Loading Catalog</h3>
             
             {/* Progress Bar */}
-            <div className="w-64 bg-gray-200 rounded-full h-2 mb-4">
+            <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
               <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                className="bg-blue-600 h-3 rounded-full transition-all duration-300"
                 style={{ width: `${loadingProgress}%` }}
-              ></div>
+              />
             </div>
             
-            <p className="text-gray-500 text-xs text-center max-w-xs">
-              Loading catalog from CDN... {loadingProgress}% complete
-              <br />
-              <span className="text-xs text-gray-400 mt-1 block">
-                Using fast CDN delivery - should be ready in 3-5 seconds
-              </span>
+            <p className="text-gray-600 text-sm mb-2">{loadingProgress}% loaded</p>
+            <p className="text-gray-500 text-xs">
+              Loading from fast CDN - should be ready in 3-5 seconds
             </p>
 
-            {/* Quick action buttons while loading */}
-            <div className="mt-6 flex gap-3">
+            {/* Quick action buttons */}
+            <div className="mt-6 flex gap-3 justify-center">
               <button
                 onClick={handleOpenNew}
                 className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -166,26 +196,120 @@ export default function OptimizedPDFViewer({
                 Open in Browser
               </button>
               <button
-                onClick={handleDownload}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                onClick={onClose}
+                className="text-gray-600 hover:text-gray-800 px-4 py-2 text-sm"
               >
-                Download Instead
+                Cancel
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/90 z-50 flex flex-col">
+      {/* Header Controls */}
+      <div className="bg-white border-b border-gray-200 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <h3 className="font-semibold text-gray-900">{title}</h3>
+            {pageLoading && <Loader2 className="h-4 w-4 animate-spin text-blue-600" />}
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {/* Navigation Controls */}
+            <div className="flex items-center gap-2 bg-gray-100 rounded-lg px-2 py-1">
+              <button
+                onClick={handlePreviousPage}
+                disabled={currentPage <= 1}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Previous Page"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              
+              <span className="text-sm px-2 font-medium">
+                {currentPage} / {totalPages}
+              </span>
+              
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage >= totalPages}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Next Page"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Zoom Controls */}
+            <div className="flex items-center gap-1 bg-gray-100 rounded-lg px-2 py-1">
+              <button
+                onClick={handleZoomOut}
+                className="p-1 hover:bg-gray-200 rounded"
+                title="Zoom Out"
+              >
+                <ZoomOut className="h-4 w-4" />
+              </button>
+              <span className="text-sm px-2 min-w-[3rem] text-center">
+                {Math.round(scale * 100)}%
+              </span>
+              <button
+                onClick={handleZoomIn}
+                className="p-1 hover:bg-gray-200 rounded"
+                title="Zoom In"
+              >
+                <ZoomIn className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="h-6 w-px bg-gray-300" />
+
+            {/* Action Buttons */}
+            <button
+              onClick={handleDownload}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Download PDF"
+            >
+              <Download className="h-4 w-4" />
+            </button>
+            
+            <button
+              onClick={handleOpenNew}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Open in New Tab"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </button>
+            
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Close"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* PDF Canvas */}
+      <div 
+        ref={containerRef}
+        className="flex-1 overflow-auto bg-gray-800 flex items-center justify-center p-4"
+      >
+        {pageLoading && (
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-10">
+            <Loader2 className="h-8 w-8 animate-spin text-white" />
+          </div>
         )}
         
-        <iframe
-          src={`${pdfUrl}#view=FitH&zoom=page-fit&toolbar=1&navpanes=1`}
-          className="w-full h-full border-0"
-          title={title}
-          onLoad={handlePDFLoad}
-          onError={handlePDFError}
-          loading="lazy"
-          style={{ 
-            backgroundColor: '#f5f5f5',
-            minHeight: '100%'
-          }}
+        <canvas
+          ref={canvasRef}
+          className="max-w-full max-h-full shadow-2xl bg-white"
+          style={{ display: pdf ? 'block' : 'none' }}
         />
       </div>
     </div>

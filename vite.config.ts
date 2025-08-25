@@ -28,12 +28,13 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           ui: ['lucide-react'],
+          pdfjs: ['pdfjs-dist'],
         },
       },
     },
   },
   optimizeDeps: {
-    include: ['react', 'react-dom'],
+    include: ['react', 'react-dom', 'pdfjs-dist'],
     force: mode === 'development', // Force re-optimize in dev
   },
   esbuild: {
