@@ -37,13 +37,13 @@ export default function OptimizedPDFViewer({
         }, timeouts[index]);
       });
 
-      // Auto-fallback after 10 seconds if still loading
+      // Auto-fallback after 7 seconds if still loading (CDN should be faster)
       const fallbackTimeout = setTimeout(() => {
         if (loading) {
           setLoading(false);
           setError(true);
         }
-      }, 10000);
+      }, 7000);
 
       return () => clearTimeout(fallbackTimeout);
     }
@@ -150,10 +150,10 @@ export default function OptimizedPDFViewer({
             </div>
             
             <p className="text-gray-500 text-xs text-center max-w-xs">
-              Loading 68MB PDF file... {loadingProgress}% complete
+              Loading catalog from CDN... {loadingProgress}% complete
               <br />
               <span className="text-xs text-gray-400 mt-1 block">
-                First load may take 10-15 seconds
+                Using fast CDN delivery - should be ready in 3-5 seconds
               </span>
             </p>
 

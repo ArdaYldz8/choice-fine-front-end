@@ -7,8 +7,8 @@ export default function Catalog() {
   const [isMobile, setIsMobile] = useState(false);
   const [selectedPDF, setSelectedPDF] = useState<{ url: string; page?: number } | null>(null);
 
-  // Preload PDF in background
-  const pdfUrl = '/Choice Foods Catalog.pdf';
+  // Use jsDelivr CDN for faster PDF loading
+  const pdfUrl = 'https://cdn.jsdelivr.net/gh/ArdaYldz8/choice-fine-front-end@main/public/Choice%20Foods%20Catalog.pdf';
   const { isPreloaded, progress: preloadProgress } = usePDFPreloader(pdfUrl, !isMobile);
 
   const checkMobile = useCallback(() => {
@@ -120,10 +120,10 @@ export default function Catalog() {
 
   const handleDownload = useCallback(() => {
     const link = document.createElement('a');
-    link.href = '/Choice Foods Catalog.pdf';
+    link.href = pdfUrl;
     link.download = 'Choice Foods Catalog.pdf';
     link.click();
-  }, []);
+  }, [pdfUrl]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
