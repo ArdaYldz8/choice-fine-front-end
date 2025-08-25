@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Download, Eye, BookOpen, ExternalLink, ChevronRight, Package, Users, Clock } from 'lucide-react';
+import OptimizedPDFViewer from '../components/OptimizedPDFViewer';
 
 export default function Catalog() {
   const [isMobile, setIsMobile] = useState(false);
+  const [selectedPDF, setSelectedPDF] = useState<{ url: string; page?: number } | null>(null);
 
   const checkMobile = useCallback(() => {
     setIsMobile(window.innerWidth < 768);
@@ -101,8 +103,15 @@ export default function Catalog() {
   const handleSectionClick = useCallback((page: number) => {
     // PDF viewer için +2 eklememiz gerekiyor (indexing farkı)
     const pdfUrl = `/Choice Foods Catalog.pdf#page=${page + 2}`;
-    window.open(pdfUrl, '_blank');
-  }, []);
+    
+    // Mobile'da veya küçük ekranlarda doğrudan yeni tab'da aç
+    if (isMobile || window.innerWidth < 1024) {
+      window.open(pdfUrl, '_blank');
+    } else {
+      // Desktop'ta optimized viewer kullan
+      setSelectedPDF({ url: pdfUrl, page: page + 2 });
+    }
+  }, [isMobile]);
 
   const handleDownload = useCallback(() => {
     const link = document.createElement('a');
@@ -153,7 +162,15 @@ export default function Catalog() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={() => handleSectionClick(-2)}
+                onClick={() => {
+                  // Full catalog view
+                  const pdfUrl = '/Choice Foods Catalog.pdf';
+                  if (isMobile || window.innerWidth < 1024) {
+                    window.open(pdfUrl, '_blank');
+                  } else {
+                    setSelectedPDF({ url: pdfUrl });
+                  }
+                }}
                 className="group inline-flex items-center justify-center bg-white text-neutralBlack px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
               >
                 <Eye className="mr-3 h-5 w-5" />
@@ -229,6 +246,15 @@ export default function Catalog() {
           </div>
         </div>
       </section>
+
+      {/* PDF Viewer Modal */}
+      {selectedPDF && (
+        <OptimizedPDFViewer
+          pdfUrl={selectedPDF.url}
+          title="Choice Foods Catalog"
+          onClose={() => setSelectedPDF(null)}
+        />
+      )}
 
     </div>
   );

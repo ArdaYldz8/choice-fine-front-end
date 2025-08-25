@@ -1,0 +1,15 @@
+# PDF Range Request Support
+/*.pdf
+  Accept-Ranges: bytes
+  Content-Type: application/pdf
+  Cache-Control: public, max-age=31536000
+  Access-Control-Allow-Origin: *
+  Access-Control-Expose-Headers: Accept-Ranges, Content-Length, Content-Range
+
+# General static asset caching  
+/public/*
+  Cache-Control: public, max-age=31536000
+
+# Service worker
+/sw.js
+  Cache-Control: no-cache
